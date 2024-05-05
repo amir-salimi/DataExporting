@@ -7,6 +7,12 @@ import time
 dxb_url = "https://dxboffplan.com/fa/offplan-projects/"
 
 
+def remove_new_line(data):
+    data = data.replace("\n", "")
+    data = data.replace(" ", "")
+    print(data)
+    return data
+
 
 def data_from_url(link_array):
 
@@ -25,7 +31,7 @@ def data_from_url(link_array):
         city = each_soup.find("p", class_="city").text
 
         for data in all_data:
-            
+            val = remove_new_line(data.text) # with this function we can delete the while space and "\n" from a string
             data_array.append(data.text)
 
         data_array.append(development)
