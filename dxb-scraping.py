@@ -31,15 +31,16 @@ def data_from_url(link_array):
 
         for data in all_data:
             val = remove_new_line(data.text) # with this function we can delete the while space and "\n" from a string
-            data_array.append(data.text)
+            data_array.append(val)
 
-        data_array.append(development)
-        data_array.append(city)
+        data_array.append(remove_new_line(development))
+        data_array.append(remove_new_line(city))
+        data_array.append(link)
         
         print(data_array)
 
         requests.get(
-            f"http://0.0.0.0:8000/?price={data_array[0]}&per_meter_price={data_array[1]}&area={data_array[2]}&category={data_array[3]}&bed_room={data_array[4]}&location={data_array[5]}&developer={data_array[6]}&developer_projects={data_array[7]}&delivery={data_array[8]}&views={data_array[9]}&city={data_array[10]}&development={data_array[11]}"
+            f"http://0.0.0.0:8000/?price={data_array[0]}&per_meter_price={data_array[1]}&area={data_array[2]}&category={data_array[3]}&bed_room={data_array[4]}&location={data_array[5]}&developer={data_array[6]}&developer_projects={data_array[7]}&delivery={data_array[8]}&views={data_array[9]}&city={data_array[10]}&development={data_array[11]}&link={data_array[12]}"
         )
 
         data_array = []
