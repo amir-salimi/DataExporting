@@ -8,7 +8,18 @@ url = "https://opr.ae/projects"
 
 load_more_url = "https://api.opr.ae/offplan/"
 
-max_page = 27
+
+
+def get_each_project_approximate_location(soup):
+    data = ""
+    try:
+        location = soup.find(id="location").find_all(class_="zero-layer")
+        for i in location:
+            if i.text != "":
+                data += i.text + ", "
+        return data
+    except:
+        pass
 
 
 def get_bed_area_data(soup):
@@ -53,8 +64,8 @@ def get_eahc_project_plan(soup):
 
 def get_each_project_handover(soup):
     array = []
-    deli = soup.find_all(class_="zero-layer-frame node-stretch")
-    for i in deli:
+    handover = soup.find_all(class_="zero-layer-frame node-stretch")
+    for i in handover:
         if i.text != "":
             data = remove_new_line(i.text)
             array.append(data)
@@ -63,11 +74,44 @@ def get_each_project_handover(soup):
             
 
 
+def get_each_project_about(soup):
+    array = []
+    try:
+        about = soup.find(id="about").find(class_="node").find_all(class_="col")
+        for i in about:
+            data = remove_new_line(i.text)
+            array.append(data)
+        return array
+    except:
+        pass
+
+def get_each_project_frequently_question(soup):
+    array = []
+    questions_array = []
+    try:
+        question = soup.find(id="questions-and-answers").find_all(class_="node")
+        for q in question:
+            data = q.text
+            data = data.replace("\n", "")
+            array.append(data)  
+        for i in array:
+            if i[::-1][:1] == "?":
+                ques = i + "|" + array[array.index(i)+1]
+                questions_array.append(ques)
+        return questions_array
+    except:
+        pass
+
 def get_data_from_each_link(link, array):
     each_page = requests.get(link)
     each_soup = BeautifulSoup(each_page.content, "html.parser")
 
     print(link)     
+
+    # about = get_each_project_about(each_soup)
+
+    # answer_and_question = get_each_project_frequently_question(each_soup)
+
     # bed_area = get_bed_area_data(each_soup)
 
     # map_plan = get_eahc_project_plan(each_soup)
@@ -76,11 +120,15 @@ def get_data_from_each_link(link, array):
 
     # handover = get_each_project_handover(each_soup)
 
+    # approximate_location = get_each_project_approximate_location(each_soup)
+
+    # print(answer_and_question)
+    # print(approximate_location)
     # print(handover)
     # print(bed_area)
     # print(map_plan)
     # print(img_plan)
-    
+    # print(about)
     print("------------------------------------------------------------------------------------------------")
     
         
