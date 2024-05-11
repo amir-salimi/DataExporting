@@ -29,7 +29,6 @@ class Product(models.Model):
     name = models.CharField(max_length=256)
     location = models.CharField(max_length=128, null=True, blank=True)
     developer = models.CharField(max_length=128, null=True, blank=True)
-    # development = models.CharField(max_length=128, null=True, blank=True)
     link = models.CharField(max_length=128, null=True, blank=True)
     category = models.ForeignKey(to=Category, on_delete=models.DO_NOTHING)
     price = models.PositiveBigIntegerField(validators=[MinValueValidator(1000)], null=True, blank=True)
@@ -46,6 +45,6 @@ class Product(models.Model):
     plan_map = models.ManyToManyField(ProductPlanMap, null=True, blank=True)
     about = models.ManyToManyField(About, null=True, blank=True)
     approximate_location = models.TextField(null=True, blank=True)
+    development = models.CharField(max_length=128, null=True, blank=True)
+    developer_project_number = models.PositiveIntegerField(null=True, blank=True)
     
-
-

@@ -2,6 +2,8 @@ def remove_new_line(data):
     data = data.replace("\n", "")
     data = data.replace(" ", "")
     data = data.replace("\xa0", "")
+    data = data.replace("aed", "")
+    data = data.replace("Sqft", "")
     return data
 
 
@@ -24,12 +26,12 @@ def split_data(data_array, obj1, obj2):
             else:
                 second_array.append(data)
                 break
-    
+
     for f in first_array:
         for o1 in obj1:
             f = f.replace(o1, "") if o1 in f else ...
         array.append(f)
-
+    
     return_array += [array]
 
     if obj2 is not None:
@@ -40,6 +42,5 @@ def split_data(data_array, obj1, obj2):
                     s = s.replace(o2, "")
                     s = "0"+s if len(s) == 1 else ...
             array.append(s)
-    
-            return_array += [array]
+        return_array += [array]
     return return_array

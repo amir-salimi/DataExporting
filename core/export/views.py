@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from .models import Product, AnswerAndQuestion, About, ProductPhoto, ProductPlanMap, Category, Status
 
 
-class GetData(DetailView):
+class OprScrapingData(DetailView):
     def get(self, request):
         question = request.GET.get("question", None)
         answer = request.GET.get("answer", None)
@@ -36,7 +36,6 @@ class GetData(DetailView):
         area = request.GET.get("area", None)
         handover = request.GET.get("handover", None)
         name = request.GET.get("name", None)
-
         location = request.GET.get("location", None)
         developer = request.GET.get("developer", None)
         category = request.GET.get("category", None)
@@ -45,7 +44,7 @@ class GetData(DetailView):
         status = request.GET.get("status", None)
         approximate_location = request.GET.get("approximate_location") 
         link = request.GET.get("link") 
-        
+
         if name and area and bed_room and category :
             try:
                 cat = Category.objects.get(category=category)
@@ -57,18 +56,10 @@ class GetData(DetailView):
             except ObjectDoesNotExist:
                 stat = Status.objects.create(status=status)
 
-            
-
             map = ProductPlanMap.objects.filter(link=link)
             photo = ProductPhoto.objects.filter(link=link)
-
-
             frequntly_questions = AnswerAndQuestion.objects.filter(link=link)
-
             about = About.objects.filter(link=link)
-
-
-            
             p = Product.objects.create(
                 name=name,
                 location=location, 
@@ -91,3 +82,54 @@ class GetData(DetailView):
 
         return HttpResponse("ok")
 
+
+
+class DxbScrapingData(DetailView):
+    def get(self, request):
+        name = request.GET.get("name", None)
+        development = request.GET.get("development", None)
+        city = request.GET.get("city", None)
+        img = request.GET.get("img", None)
+        price = request.GET.get("price", None)
+        price_per_meter = request.GET.get("price_per_meter", None)
+        area = request.GET.get("area", None)
+        category = request.GET.get("category", None)
+        bed_room = request.GET.get("bed_room", None)
+        views = request.GET.get("views", None)
+        handover = request.GET.get("handover", None)
+        developer_project_number = request.GET.get("developer_project_number", None)
+        developer = request.GET.get("developer", None)
+        location = request.GET.get("location", None)
+        link = request.GET.get("link", None)
+        print(views)
+        # print(name)
+
+        if name and category and bed_room and area and link :
+            try:
+                cat = Category.objects.get(category=category)
+            except ObjectDoesNotExist:
+                cat = Category.objects.create(category=category)
+
+            try:
+                photo = ProductPhoto.objects.get(link=link)
+            except:
+                photo = ProductPhoto.objects.create(link=link, image=img)
+
+            p = Product.objects.create(
+                name=name,
+                location=location, 
+                developer=developer, 
+                link=link, 
+                category = cat,
+                price=price, 
+                area=area, 
+                bed_room=bed_room, 
+                handover=handover,
+                developer_project_number = developer_project_number,
+                viwes = int(views),
+                per_meter_price = price_per_meter,
+                city = city,
+                development = development,
+                )
+            p.photo.set(photo)
+        return HttpResponse("ok")

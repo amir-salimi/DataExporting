@@ -3,5 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('data/', views.GetData.as_view())
+    path('opr_data/', views.OprScrapingData.as_view()),
+    path('data/', views.DxbScrapingData.as_view()),
+
 ]
