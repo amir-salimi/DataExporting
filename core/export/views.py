@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
+
 from django.views.generic import DetailView
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,29 +11,89 @@ from django.http import HttpResponse
 from .models import Product, AnswerAndQuestion, About, ProductPhoto, ProductPlanMap, Category, Status
 
 
+class EasyMapScraping(DetailView):
+    def get(self, request):
+        area = None
+
+        prj_link = request.GET.get("link", None)
+        img_link = request.GET.get("img", None)
+        if prj_link and img_link :
+            try:
+                ProductPhoto.objects.get(image=img_link)
+            except ObjectDoesNotExist:
+                ProductPhoto.objects.create(link=prj_link, image=img_link)
+
+        link = request.GET.get("link", None)
+        city = request.GET.get("city", None)
+        size = request.GET.get("size", None)
+        finish = request.GET.get("finish", None)
+        type = request.GET.get("type", None)
+        price = request.GET.get("price", None)
+
+        about = request.GET.get("description", None)
+        if about is not None:
+            About.objects.create(link=link, about=about)    
+        try:
+            price = price.replace(",", "")
+            price = price.replace("AED", "")
+            price = price.replace(" ", "")
+            price = float(price)
+        except:
+            pass
+        try:
+            size_list = []
+            size = size.split("x")
+            for s in size:
+                s = s.replace("W", "")
+                s = s.replace("H", "")
+                s = s.replace(" ", "")
+                s = s.replace("cm", "")
+                size_list.append(s)
+            area = float(size_list[0])*float(size_list[1])
+        except:
+            pass
+        
+        if link and city and area and price is not None:
+            ab = About.objects.filter(link=link)
+
+            p = Product.objects.create(
+                name=city, 
+                location=city, 
+                link=link, 
+                city=city, 
+                area=area, 
+                price=price, 
+                type=type, 
+                finish=finish
+            )
+        
+        return HttpResponse("ok")
+
+
+
 class OprScrapingData(DetailView):
     def get(self, request):
         question = request.GET.get("question", None)
         answer = request.GET.get("answer", None)
-        q_a_link = request.GET.get("link", None)
-        if question and q_a_link is not None:
-            AnswerAndQuestion.objects.create(link=q_a_link, question=question, answer=answer)
+        q_a_link_prj = request.GET.get("link", None)
+        if question and q_a_link_prj is not None:
+            AnswerAndQuestion.objects.create(link=q_a_link_prj, question=question, answer=answer)
         
         about = request.GET.get("about", None)
-        about_link = request.GET.get("link", None)
+        about_link_prj = request.GET.get("link", None)
 
-        if about and about_link:
-            About.objects.create(link=about_link, about=about)
+        if about and about_link_prj:
+            About.objects.create(link=about_link_prj, about=about)
 
         img = request.GET.get("img", None)
-        img_link = request.GET.get("link", None)
-        if img and img_link:
-            ProductPhoto.objects.create(link=img_link, image=img)
+        img_link_prj = request.GET.get("link", None)
+        if img and img_link_prj:
+            ProductPhoto.objects.create(link=img_link_prj, image=img)
 
         plan = request.GET.get("plan", None)
-        plan_link = request.GET.get("link", None)
-        if plan_link and plan:
-            ProductPlanMap.objects.create(link=plan_link, plan_map=plan)
+        plan_link_prj = request.GET.get("link", None)
+        if plan_link_prj and plan:
+            ProductPlanMap.objects.create(link=plan_link_prj, plan_map=plan)
 
         bed_room = request.GET.get("bed_room", None)
         area = request.GET.get("area", None)

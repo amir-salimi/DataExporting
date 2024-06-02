@@ -27,15 +27,15 @@ class ProductPhoto(models.Model):
 
 class About(models.Model):
     link = models.CharField(max_length=128, null=True, blank=True)
-    about = models.CharField(max_length=128)
+    about = models.TextField()
 
 class Product(models.Model):
     name = models.CharField(max_length=256)
     location = models.CharField(max_length=128, null=True, blank=True)
     developer = models.CharField(max_length=128, null=True, blank=True)
     link = models.CharField(max_length=128, null=True, blank=True)
-    category = models.ForeignKey(to=Category, on_delete=models.DO_NOTHING)
-    price = models.PositiveBigIntegerField(validators=[MinValueValidator(1000)], null=True, blank=True)
+    category = models.ForeignKey(to=Category, on_delete=models.DO_NOTHING, null=True, blank=True)
+    price = models.FloatField(validators=[MinValueValidator(1000)], null=True, blank=True)
     per_meter_price = models.PositiveIntegerField(validators=[MinValueValidator(0)], null=True, blank=True)
     area = models.FloatField(validators=[MinValueValidator(10)], null=True, blank=True)
     payment_plan = models.CharField(max_length=64, null=True, blank=True)
@@ -53,3 +53,6 @@ class Product(models.Model):
     developer_project_number = models.PositiveIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(default=datetime.now(), blank=True)
     updated_at = models.DateTimeField(null=True, blank=True)
+    type = models.CharField(max_length=64, null=True, blank=True)
+    finish = models.CharField(max_length=64, null=True, blank=True)
+    
