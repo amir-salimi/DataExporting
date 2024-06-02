@@ -2,6 +2,10 @@ from django.db import models
 
 from django.core.validators import MinValueValidator
 
+from datetime import datetime
+
+
+
 class ProductPlanMap(models.Model):
     link = models.CharField(max_length=128, null=True, blank=True)
     plan_map = models.CharField(max_length=256)
@@ -33,7 +37,7 @@ class Product(models.Model):
     category = models.ForeignKey(to=Category, on_delete=models.DO_NOTHING)
     price = models.PositiveBigIntegerField(validators=[MinValueValidator(1000)], null=True, blank=True)
     per_meter_price = models.PositiveIntegerField(validators=[MinValueValidator(0)], null=True, blank=True)
-    area = models.PositiveIntegerField(validators=[MinValueValidator(10)], null=True, blank=True)
+    area = models.FloatField(validators=[MinValueValidator(10)], null=True, blank=True)
     payment_plan = models.CharField(max_length=64, null=True, blank=True)
     status = models.ForeignKey(to=Status, on_delete=models.DO_NOTHING, null=True, blank=True)
     bed_room = models.CharField(max_length=16, null=True, blank=True)
@@ -47,4 +51,5 @@ class Product(models.Model):
     approximate_location = models.TextField(null=True, blank=True)
     development = models.CharField(max_length=128, null=True, blank=True)
     developer_project_number = models.PositiveIntegerField(null=True, blank=True)
-    
+    created_at = models.DateTimeField(default=datetime.now(), blank=True)
+    updated_at = models.DateTimeField(null=True, blank=True)

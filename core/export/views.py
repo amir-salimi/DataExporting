@@ -101,35 +101,40 @@ class DxbScrapingData(DetailView):
         developer = request.GET.get("developer", None)
         location = request.GET.get("location", None)
         link = request.GET.get("link", None)
-        print(views)
-        # print(name)
 
-        if name and category and bed_room and area and link :
-            try:
-                cat = Category.objects.get(category=category)
-            except ObjectDoesNotExist:
-                cat = Category.objects.create(category=category)
+        
 
-            try:
-                photo = ProductPhoto.objects.get(link=link)
-            except:
-                photo = ProductPhoto.objects.create(link=link, image=img)
-
-            p = Product.objects.create(
-                name=name,
-                location=location, 
-                developer=developer, 
-                link=link, 
-                category = cat,
-                price=price, 
-                area=area, 
-                bed_room=bed_room, 
-                handover=handover,
-                developer_project_number = developer_project_number,
-                viwes = int(views),
-                per_meter_price = price_per_meter,
-                city = city,
-                development = development,
-                )
-            p.photo.set(photo)
+        try:
+            if name and category and bed_room and area and link :
+                try:
+                    cat = Category.objects.get(category=category)
+                except ObjectDoesNotExist:
+                    cat = Category.objects.create(category=category)
+    
+                try:
+                    photo = ProductPhoto.objects.get(link=link)
+                except:
+                    photo = ProductPhoto.objects.create(link=link, image=img)
+    
+                p = Product.objects.create(
+                    name=name,
+                    location=location, 
+                    developer=developer, 
+                    link=link, 
+                    category = cat,
+                    price=price, 
+                    area=area, 
+                    bed_room=bed_room, 
+                    handover=handover,
+                    developer_project_number = developer_project_number,
+                    viwes = int(views),
+                    per_meter_price = price_per_meter,
+                    city = city,
+                    development = development,
+                    )
+                p.photo.add(photo)
+                p.save()
+        except:
+            pass
+        
         return HttpResponse("ok")
