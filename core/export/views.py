@@ -165,20 +165,11 @@ class DxbScrapingData(DetailView):
         location = request.GET.get("location", None)
         link = request.GET.get("link", None)
 
-        
-
         try:
             if name and category and bed_room and area and link :
-                try:
-                    cat = Category.objects.get(category=category)
-                except ObjectDoesNotExist:
-                    cat = Category.objects.create(category=category)
-    
-                try:
-                    photo = ProductPhoto.objects.get(link=link)
-                except:
-                    photo = ProductPhoto.objects.create(link=link, image=img)
-    
+                area = area.replace("مترمربع", "")
+                cat, cat_created = Category.objects.get_or_create(category=category)
+                photo, photo_created = ProductPhoto.objects.get_or_create(link=link, image=img)
                 p = Product.objects.create(
                     name=name,
                     location=location, 

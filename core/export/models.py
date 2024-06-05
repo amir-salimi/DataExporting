@@ -5,7 +5,6 @@ from django.core.validators import MinValueValidator
 from datetime import datetime
 
 
-
 class ProductPlanMap(models.Model):
     link = models.CharField(max_length=128, null=True, blank=True)
     plan_map = models.CharField(max_length=256)
