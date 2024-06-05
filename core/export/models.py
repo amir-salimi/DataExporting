@@ -55,3 +55,5 @@ class Product(models.Model):
     type = models.CharField(max_length=64, null=True, blank=True)
     finish = models.CharField(max_length=64, null=True, blank=True)
     
+
+    # def create(data):

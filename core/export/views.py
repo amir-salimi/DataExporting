@@ -11,61 +11,65 @@ from django.http import HttpResponse
 from .models import Product, AnswerAndQuestion, About, ProductPhoto, ProductPlanMap, Category, Status
 
 
+def clean_data(data):
+    data = data.replace("W", "")
+    data = data.replace("H", "")
+    data = data.replace(" ", "")
+    data = data.replace("cm", "")
+    data = data.replace(",", "")
+    data = data.replace("AED", "")
+    return data
+
+
 class EasyMapScraping(DetailView):
     def get(self, request):
         area = None
-
-        prj_link = request.GET.get("link", None)
-        img_link = request.GET.get("img", None)
-        if prj_link and img_link :
-            try:
-                ProductPhoto.objects.get(image=img_link)
-            except ObjectDoesNotExist:
-                ProductPhoto.objects.create(link=prj_link, image=img_link)
-
-        link = request.GET.get("link", None)
         city = request.GET.get("city", None)
         size = request.GET.get("size", None)
         finish = request.GET.get("finish", None)
         type = request.GET.get("type", None)
         price = request.GET.get("price", None)
-
         about = request.GET.get("description", None)
-        if about is not None:
-            About.objects.create(link=link, about=about)    
+        prj_link = request.GET.get("link", None)
+        img_link = request.GET.get("img", None)
+
+        if prj_link and img_link :
+            ProductPhoto.objects.get_or_create(link=prj_link, image=img_link)
+
         try:
-            price = price.replace(",", "")
-            price = price.replace("AED", "")
-            price = price.replace(" ", "")
-            price = float(price)
+            About.objects.get_or_create(link=prj_link, about=about)
         except:
             pass
+
+
         try:
             size_list = []
             size = size.split("x")
             for s in size:
-                s = s.replace("W", "")
-                s = s.replace("H", "")
-                s = s.replace(" ", "")
-                s = s.replace("cm", "")
-                size_list.append(s)
+                data = clean_data(s)
+                size_list.append(data)
+
             area = float(size_list[0])*float(size_list[1])
         except:
             pass
-        
-        if link and city and area and price is not None:
-            ab = About.objects.filter(link=link)
+
+        if prj_link and city and area and price is not None:
+            ab = About.objects.filter(link=prj_link)
+            image = ProductPhoto.objects.filter(link=prj_link)
 
             p = Product.objects.create(
                 name=city, 
                 location=city, 
-                link=link, 
+                link=prj_link, 
                 city=city, 
                 area=area, 
-                price=price, 
+                price=float(clean_data(price)), 
                 type=type, 
                 finish=finish
             )
+            p.about.set(ab)
+            p.photo.set(image)
+            
         
         return HttpResponse("ok")
 
@@ -73,27 +77,24 @@ class EasyMapScraping(DetailView):
 
 class OprScrapingData(DetailView):
     def get(self, request):
+        link_prj = request.GET.get("link", None)
+
         question = request.GET.get("question", None)
         answer = request.GET.get("answer", None)
-        q_a_link_prj = request.GET.get("link", None)
-        if question and q_a_link_prj is not None:
-            AnswerAndQuestion.objects.create(link=q_a_link_prj, question=question, answer=answer)
+        if question and link_prj is not None:
+            AnswerAndQuestion.objects.create(link=link_prj, question=question, answer=answer)
         
         about = request.GET.get("about", None)
-        about_link_prj = request.GET.get("link", None)
-
-        if about and about_link_prj:
-            About.objects.create(link=about_link_prj, about=about)
+        if about and link_prj:
+            About.objects.create(link=link_prj, about=about)
 
         img = request.GET.get("img", None)
-        img_link_prj = request.GET.get("link", None)
-        if img and img_link_prj:
-            ProductPhoto.objects.create(link=img_link_prj, image=img)
+        if img and link_prj:
+            ProductPhoto.objects.create(link=link_prj, image=img)
 
         plan = request.GET.get("plan", None)
-        plan_link_prj = request.GET.get("link", None)
-        if plan_link_prj and plan:
-            ProductPlanMap.objects.create(link=plan_link_prj, plan_map=plan)
+        if link_prj and plan:
+            ProductPlanMap.objects.create(link=link_prj, plan_map=plan)
 
         bed_room = request.GET.get("bed_room", None)
         area = request.GET.get("area", None)
@@ -106,28 +107,19 @@ class OprScrapingData(DetailView):
         payment_plan = request.GET.get("payment_plan", None)
         status = request.GET.get("status", None)
         approximate_location = request.GET.get("approximate_location") 
-        link = request.GET.get("link") 
 
         if name and area and bed_room and category :
-            try:
-                cat = Category.objects.get(category=category)
-            except ObjectDoesNotExist:
-                cat = Category.objects.create(category=category)
-            
-            try:
-                stat = Status.objects.get(status=status)
-            except ObjectDoesNotExist:
-                stat = Status.objects.create(status=status)
-
-            map = ProductPlanMap.objects.filter(link=link)
-            photo = ProductPhoto.objects.filter(link=link)
-            frequntly_questions = AnswerAndQuestion.objects.filter(link=link)
-            about = About.objects.filter(link=link)
+            cat, cat_created = Category.objects.get_or_create(category=category)
+            stat, stat_created = Status.objects.get_or_create(status=status)
+            map = ProductPlanMap.objects.filter(link=link_prj)
+            photo = ProductPhoto.objects.filter(link=link_prj)
+            frequntly_questions = AnswerAndQuestion.objects.filter(link=link_prj)
+            about = About.objects.filter(link=link_prj)
             p = Product.objects.create(
                 name=name,
                 location=location, 
                 developer=developer, 
-                link=link, 
+                link=link_prj, 
                 category = cat,
                 status = stat,
                 price=price, 
@@ -141,8 +133,6 @@ class OprScrapingData(DetailView):
             p.about.set(about)
             p.photo.set(photo)
             p.plan_map.set(map)
-
-
         return HttpResponse("ok")
 
 
