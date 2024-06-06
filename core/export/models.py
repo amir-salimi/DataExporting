@@ -44,7 +44,7 @@ class Product(models.Model):
     link = models.CharField(max_length=128, null=True, blank=True)
     category = models.ForeignKey(to=Category, on_delete=models.DO_NOTHING, null=True, blank=True)
     price = models.FloatField(validators=[MinValueValidator(1000)], null=True, blank=True)
-    per_meter_price = models.PositiveIntegerField(validators=[MinValueValidator(0)], null=True, blank=True)
+    per_meter_price = models.PositiveIntegerField(validators=[MinValueValidator(0)], null=True, blank=True, default=None)
     area = models.FloatField(validators=[MinValueValidator(10)], null=True, blank=True)
     payment_plan = models.CharField(max_length=64, null=True, blank=True)
     status = models.ForeignKey(to=Status, on_delete=models.DO_NOTHING, null=True, blank=True)

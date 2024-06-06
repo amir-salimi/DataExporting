@@ -54,22 +54,24 @@ class EasyMapScraping(DetailView):
             pass
 
         if prj_link and city and area and price is not None:
-            ab = About.objects.filter(link=prj_link)
-            image = ProductPhoto.objects.filter(link=prj_link)
+            try:
+                ab = About.objects.filter(link=prj_link)
+                image = ProductPhoto.objects.filter(link=prj_link)
 
-            p = Product.objects.create(
-                name=city, 
-                location=city, 
-                link=prj_link, 
-                city=city, 
-                area=area, 
-                price=float(clean_data(price)), 
-                type=type, 
-                finish=finish
-            )
-            p.about.set(ab)
-            p.photo.set(image)
-            
+                p = Product.objects.create(
+                    name=city, 
+                    location=city, 
+                    link=prj_link, 
+                    city=city, 
+                    area=area, 
+                    price=float(clean_data(price)), 
+                    type=type, 
+                    finish=finish
+                )
+                p.about.set(ab)
+                p.photo.set(image)
+            except:
+                pass        
         
         return HttpResponse("ok")
 
@@ -109,30 +111,37 @@ class OprScrapingData(DetailView):
         approximate_location = request.GET.get("approximate_location") 
 
         if name and area and bed_room and category :
-            cat, cat_created = Category.objects.get_or_create(category=category)
-            stat, stat_created = Status.objects.get_or_create(status=status)
-            map = ProductPlanMap.objects.filter(link=link_prj)
-            photo = ProductPhoto.objects.filter(link=link_prj)
-            frequntly_questions = AnswerAndQuestion.objects.filter(link=link_prj)
-            about = About.objects.filter(link=link_prj)
-            p = Product.objects.create(
-                name=name,
-                location=location, 
-                developer=developer, 
-                link=link_prj, 
-                category = cat,
-                status = stat,
-                price=price, 
-                area=area, 
-                payment_plan=payment_plan, 
-                bed_room=bed_room, 
-                handover=handover, 
-                approximate_location=approximate_location
-                )
-            p.frequntly_question.set(frequntly_questions)
-            p.about.set(about)
-            p.photo.set(photo)
-            p.plan_map.set(map)
+            try:
+                if price.isdigit():
+                    pass
+                else:
+                    price = None
+                cat, cat_created = Category.objects.get_or_create(category=category)
+                stat, stat_created = Status.objects.get_or_create(status=status)
+                map = ProductPlanMap.objects.filter(link=link_prj)
+                photo = ProductPhoto.objects.filter(link=link_prj)
+                frequntly_questions = AnswerAndQuestion.objects.filter(link=link_prj)
+                about = About.objects.filter(link=link_prj)
+                p = Product.objects.create(
+                    name=name,
+                    location=location, 
+                    developer=developer, 
+                    link=link_prj, 
+                    category = cat,
+                    status = stat,
+                    price=price, 
+                    area=area, 
+                    payment_plan=payment_plan, 
+                    bed_room=bed_room, 
+                    handover=handover, 
+                    approximate_location=approximate_location
+                    )
+                p.frequntly_question.set(frequntly_questions)
+                p.about.set(about)
+                p.photo.set(photo)
+                p.plan_map.set(map)
+            except:
+                pass
         return HttpResponse("ok")
 
 
