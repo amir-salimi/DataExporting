@@ -12,13 +12,22 @@ class ProductPlanMap(models.Model):
 class Category(models.Model):
     category = models.CharField(unique=True, max_length=64, null=True, blank=True)
 
+    def __str__(self) -> str:
+        return self.category
+
 class Status(models.Model):
     status = models.CharField(unique=True, max_length=32, null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.status
 
 class AnswerAndQuestion(models.Model):
     link = models.CharField(max_length=128, null=True, blank=True)
     question = models.CharField(max_length=256)
     answer = models.TextField()
+
+    def __str__(self) -> str:
+        return self.question
 
 class ProductPhoto(models.Model):
     link = models.CharField(max_length=128, null=True, blank=True)
@@ -56,4 +65,5 @@ class Product(models.Model):
     finish = models.CharField(max_length=64, null=True, blank=True)
     
 
-    # def create(data):
+    def __str__(self) -> str:
+        return self.name
