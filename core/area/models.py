@@ -27,4 +27,4 @@ class Part(models.Model):
     part = models.CharField(max_length=64)
 
     def __str__(self) -> str:
-        return self.community
+        return self.part
