@@ -4,11 +4,15 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from bs4 import BeautifulSoup
+
+import undetected_chromedriver as uc
+
 
 import time
 
-import pickle
+import undetected_chromedriver as us
+
+import os
 
 cookie = {
     "G_ENABLED_IDPS" : "google" ,
@@ -20,15 +24,15 @@ cookie = {
 }
 
 def chrome_webdriver():
-    chromedriver_path = '/home/amir/Documents/export_data/chromedriver-linux64/chromedriver'
-    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                 'Chrome/123.0.0.0 Safari/537.36'
+    chromedriver_path = os.getcwd()+"/chromedriver"
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
     options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
     # options.add_argument('--headless')
     options.add_argument(f'user-agent={user_agent}')
     service = Service(executable_path=chromedriver_path)
     driver = webdriver.Chrome(service=service, options=options)
+
     return driver
 
 
@@ -66,7 +70,8 @@ url = 'https://dxbinteract.com/'
 driver = chrome_webdriver()
 print("1")
 a = driver.get(url)
-print("1")
+
+
 
 for key, value in cookie.items():
     print(key, value)
@@ -74,18 +79,14 @@ for key, value in cookie.items():
 
 driver.get("https://dxbinteract.com/dubai-house-prices")
 
+time.sleep(5)
+
 a = driver.find_element(By.ID, "soldhistory").find_element(By.CLASS_NAME, "t-Report-tableWrap").find_element(By.TAG_NAME, "tbody").find_elements(By.TAG_NAME, "tr")
 
 
 for i in a:
-    data = i.find_element(By.TAG_NAME, "a").get_attribute("href")
-    driver.execute_script(data)
+    data = i.find_element(By.TAG_NAME, "a").click()
     time.sleep(5)
-    # data = i.find_element(By.TAG_NAME, "a").get_attribute("href")
-    # javascript_apex_converter(data)
-
-
-
 
 
 time.sleep(5000)
