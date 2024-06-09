@@ -24,7 +24,4 @@ class CityProperties(DetailView):
                 community, community_created = Community.objects.get_or_create(area=area, community=community)
                 if part is not None:
                     part, part_created = Part.objects.get_or_create(community=community, part=part)
-
-        print(city)
-        print(area)
         return HttpResponse("ok")
