@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.views.generic import DetailView
 
 
-from .models import City, Area, Community
+from .models import City, Area, Community, Part
 
 
 class CityProperties(DetailView):
@@ -22,6 +22,8 @@ class CityProperties(DetailView):
             area, area_created = Area.objects.get_or_create(area=area, city=city)
             if community is not None:
                 community, community_created = Community.objects.get_or_create(area=area, community=community)
+                if part is not None:
+                    part, part_created = Part.objects.get_or_create(community=community, part=part)
 
         print(city)
         print(area)
