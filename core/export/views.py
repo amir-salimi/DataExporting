@@ -1,6 +1,7 @@
+from typing import Any
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 
 from django.views.generic import DetailView
 
@@ -19,6 +20,7 @@ def clean_data(data):
     data = data.replace(",", "")
     data = data.replace("AED", "")
     return data
+        
 
 
 class EasyMapScraping(DetailView):
