@@ -42,11 +42,7 @@ def get_prop_list(url, drop_down):
     prop_list = [[c.text.split("\n")[0], c.get_attribute("href")] for c in pros if c.text.split("\n")[0] != ''] # cleaning propertice and get cities and links
     return prop_list
 
-
-
 prop_list = get_prop_list(url=url, drop_down=True)
-
-prop_dict = {}
 
 for p in prop_list:
     areas = []
@@ -54,40 +50,18 @@ for p in prop_list:
     city_link = p[1]
 
     area_list = get_prop_list(url=city_link, drop_down=False)
-    print("city : ", city)
     for area in area_list:
         area_link = area[1]
 
         community_list = get_prop_list(area_link, drop_down=False)
-        print("area : ", area[0])
         for community in community_list:
-            print("community : ", community[0])
             part_list = get_prop_list(url=community[1], drop_down=False)
             if part_list is not None:
                 for part in part_list:
-                    print("part : ", part[0])
                     requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}")
             else:
                 pass
                 requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}")
 
 
-
-
-        # areas.append(area[0])
-    # prop_dict[city] = areas
-
-    
-    # for area_link in area_list:
-        
-    #     community = get_properties(area_link[1], drop_down=False)
-    #     community_list = [[c.text.split("\n")[0], c.get_attribute("href")] for c in community if c.text.split("\n")[0] != '']
-    #     prop_dict[city][area_link[0]] = [community[0] for community in community_list]
-        
-    # print(prop_dict)
-
-    print("-----------------------")
-
-
-
-time.sleep(5000)
+driver.close()
