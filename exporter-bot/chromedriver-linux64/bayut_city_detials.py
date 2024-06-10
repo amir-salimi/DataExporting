@@ -31,9 +31,6 @@ def get_properties(url, drop_down):
         driver.get(url)
     except TimeoutException:
         get_properties(url=url, drop_down=drop_down)
-        
-
-
     try:
         driver.find_elements(By.CLASS_NAME, "_44977ec6")[1].click() # click for view more
     except:
@@ -47,27 +44,33 @@ def get_properties(url, drop_down):
 
 def get_prop_list(url, drop_down):
     pros = get_properties(url=url, drop_down=drop_down) 
-    prop_list = [[c.text.split("\n")[0], c.get_attribute("href")] for c in pros if c.text.split("\n")[0] != ''] # cleaning propertice and get cities and links
-    return prop_list
+    if pros is not None:
+        try:
+            prop_list = [[c.text.split("\n")[0], c.get_attribute("href")] for c in pros if c.text.split("\n")[0] != ''] # cleaning propertice and get cities and links
+            return prop_list
+        except:
+            pass
+    return None
 
 prop_list = get_prop_list(url=url, drop_down=False) # get cities and save text and link of them to a list
 
 
 for p in prop_list:
-    city = p[0]
-    city_link = p[1]
-
-    area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
-    for area in area_list:
-        area_link = area[1]
-        community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
-        for community in community_list:
-            part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
-            if part_list is not None:
+    try:
+        city = p[0]
+        city_link = p[1]
+        area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
+        for area in area_list:
+            area_link = area[1]
+            community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
+            for community in community_list:
+                part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
                 for part in part_list:
                     requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://www.bayut.com/")
             else:
                 pass
                 requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://www.bayut.com/")
+    except:
+        pass
 
 driver.close()
