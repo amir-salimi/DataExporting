@@ -15,13 +15,14 @@ class CityProperties(DetailView):
         area = request.GET.get("area", None) 
         community = request.GET.get("community", None) 
         part = request.GET.get("part", None) 
+        source = request.GET.get("source", None) 
 
-        city, city_created = City.objects.get_or_create(city=city)
+        city, city_created = City.objects.get_or_create(city=city, source=source)
 
         if area is not None:
-            area, area_created = Area.objects.get_or_create(area=area, city=city)
+            area, area_created = Area.objects.get_or_create(area=area, city=city, source=source)
             if community is not None:
-                community, community_created = Community.objects.get_or_create(area=area, community=community)
+                community, community_created = Community.objects.get_or_create(area=area, community=community, source=source)
                 if part is not None:
-                    part, part_created = Part.objects.get_or_create(community=community, part=part)
+                    part, part_created = Part.objects.get_or_create(community=community, part=part, source=source)
         return HttpResponse("ok")
