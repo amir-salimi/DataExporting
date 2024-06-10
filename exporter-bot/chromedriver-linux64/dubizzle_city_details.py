@@ -58,9 +58,9 @@ for p in prop_list:
             part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
             if part_list is not None:
                 for part in part_list:
-                    requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}")
+                    requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://uae.dubizzle.com/")
             else:
                 pass
-                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}")
+                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://uae.dubizzle.com/")
 
 driver.close()

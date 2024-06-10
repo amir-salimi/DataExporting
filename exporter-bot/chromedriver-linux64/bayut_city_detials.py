@@ -24,15 +24,12 @@ driver = chrome_webdriver()
 
 def get_properties(url, drop_down):
     driver.get(url)
-    if drop_down == True:
-        driver.find_element_by_css_selector("[aria-label=View all locations]").click()
-        # driver.find_element(By.CLASS_NAME, "lastItem").find_element(By.CLASS_NAME, "buttonOpenDropDown").click() #closing drop button
     try:
-        driver.find_elements(By.CLASS_NAME, "view-all")[1].click() # click for view more
+        driver.find_elements(By.CLASS_NAME, "_44977ec6")[1].click() # click for view more
     except:
         pass
     try:
-        props = driver.find_element(By.CLASS_NAME, "custom-color").find_elements(By.TAG_NAME, "a") # get all properties
+        props = driver.find_element(By.XPATH, "//*[@aria-label='Location links']").find_elements(By.TAG_NAME, "a")
         return props
     except:
         return None
@@ -43,27 +40,24 @@ def get_prop_list(url, drop_down):
     prop_list = [[c.text.split("\n")[0], c.get_attribute("href")] for c in pros if c.text.split("\n")[0] != ''] # cleaning propertice and get cities and links
     return prop_list
 
-prop_list = get_prop_list(url=url, drop_down=True) # get cities and save text and link of them to a list
+prop_list = get_prop_list(url=url, drop_down=False) # get cities and save text and link of them to a list
 
-time.sleep(500000)
 
-# for p in prop_list:
-#     city = p[0]
-#     city_link = p[1]
+for p in prop_list:
+    city = p[0]
+    city_link = p[1]
 
-#     area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
+    area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
+    for area in area_list:
+        area_link = area[1]
+        community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
+        for community in community_list:
+            part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
+            if part_list is not None:
+                for part in part_list:
+                    requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://www.bayut.com/")
+            else:
+                pass
+                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://www.bayut.com/")
 
-#     for area in area_list:
-#         area_link = area[1]
-
-#         community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
-#         for community in community_list:
-#             part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
-#             if part_list is not None:
-#                 for part in part_list:
-#                     requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}")
-#             else:
-#                 pass
-#                 requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}")
-
-# driver.close()
+driver.close()
