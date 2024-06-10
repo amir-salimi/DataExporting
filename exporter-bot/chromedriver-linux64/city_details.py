@@ -12,7 +12,7 @@ def chrome_webdriver():
     user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B137 Safari/601.1'
     options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
     options.add_argument(f'user-agent={user_agent}')
     service = Service(executable_path=chromedriver_path)
     driver = webdriver.Chrome(service=service, options=options)
@@ -25,7 +25,7 @@ driver = chrome_webdriver()
 def get_properties(url, drop_down):
     driver.get(url)
     if drop_down == True:
-        driver.find_element(By.CLASS_NAME, "lastItem").find_element(By.CLASS_NAME, "buttonOpenDropDown").click() #closign drop button
+        driver.find_element(By.CLASS_NAME, "lastItem").find_element(By.CLASS_NAME, "buttonOpenDropDown").click() #closing drop button
     try:
         driver.find_elements(By.CLASS_NAME, "view-all")[1].click() # click for view more
     except:
