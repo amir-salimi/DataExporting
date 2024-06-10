@@ -2,6 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 
+from selenium.common.exceptions import TimeoutException
+
 import time
 import requests
 import os
@@ -20,10 +22,18 @@ def chrome_webdriver():
 
 
 url = 'https://www.bayut.com/for-sale/property/uae/'
+
 driver = chrome_webdriver()
 
 def get_properties(url, drop_down):
-    driver.get(url)
+    try:
+        driver.set_page_load_timeout(60)
+        driver.get(url)
+    except TimeoutException:
+        get_properties(url=url, drop_down=drop_down)
+        
+
+
     try:
         driver.find_elements(By.CLASS_NAME, "_44977ec6")[1].click() # click for view more
     except:
