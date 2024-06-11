@@ -4,9 +4,26 @@ from selenium.webdriver.chrome.service import Service
 
 from selenium.common.exceptions import TimeoutException
 
+import pandas as pd
+
+from subprocess import call
+
 import time
 import requests
 import os
+
+
+def is_exist(part, source):
+    em = pd.read_csv("/home/amir/Documents/export_data/exporter-bot/data-formater/Data.csv")
+    
+    call(["python", "/home/amir/Documents/export_data/exporter-bot/data-formater/csv_creator.py"])
+    for i in em["part", "source"]:
+        print(i[0])
+        print(i[1])
+        if i[0] == part[0] and i[1] == source:
+            return None
+        else:
+            return part
 
 
 def chrome_webdriver():
@@ -66,7 +83,10 @@ for p in prop_list:
             for community in community_list:
                 part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
                 for part in part_list:
-                    requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://uae.dubizzle.com/")
+                    print(part[0])
+                    part = is_exist(part, "https://uae.dubizzle.com/") # data exist ? if exitst return None and if does not exist return that part
+                    if part is not None:
+                        requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://uae.dubizzle.com/")
             else:
                 pass
                 requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://uae.dubizzle.com/")

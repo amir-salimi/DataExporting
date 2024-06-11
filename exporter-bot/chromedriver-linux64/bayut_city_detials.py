@@ -4,9 +4,27 @@ from selenium.webdriver.chrome.service import Service
 
 from selenium.common.exceptions import TimeoutException
 
+from subprocess import call
+
 import time
 import requests
 import os
+
+import pandas as pd
+
+def is_exist(part, source):
+    em = pd.read_csv("/home/amir/Documents/export_data/exporter-bot/data-formater/Data.csv")
+    
+    call(["python", "/home/amir/Documents/export_data/exporter-bot/data-formater/csv_creator.py"])
+    for i in em["part", "source"]:
+        print(i[0])
+        print(i[1])
+        if i[0] == part[0] and i[1] == source:
+            return None
+        else:
+            return part
+        
+    
 
 
 def chrome_webdriver():
@@ -43,36 +61,39 @@ def get_properties(url, drop_down):
 
 
 def get_prop_list(url, drop_down):
-    pros = get_properties(url=url, drop_down=drop_down) 
-    if pros is not None:
-        try:
-            prop_list = [[c.text.split("\n")[0], c.get_attribute("href")] for c in pros if c.text.split("\n")[0] != ''] # cleaning propertice and get cities and links
-            return prop_list
-        except:
-            pass
-    return None
+    pros = get_properties(url=url, drop_down=drop_down)
+    try:
+        prop_list = [[c.text.split("\n")[0], c.get_attribute("href")] for c in pros if c.text.split("\n")[0] != ''] # cleaning propertice and get cities and links
+        return prop_list
+    except:
+        return None
+    
+
+
 
 prop_list = get_prop_list(url=url, drop_down=False) # get cities and save text and link of them to a list
 
-
-# print(prop_list)
-
-for p in prop_list:
-    try:
-        city = p[0]
-        city_link = p[1]
-        area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
-        for area in area_list:
-            area_link = area[1]
-            community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
-            for community in community_list:
-                part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
-                for part in part_list:
-                    requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://www.bayut.com/")
-            else:
-                pass
-                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://www.bayut.com/")
-    except:
-        pass
+if prop_list is not None:
+    for p in prop_list:
+        try:
+            city = p[0]
+            city_link = p[1]
+            print(city)
+            area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
+            for area in area_list:
+                area_link = area[1]
+                print(area[0])
+                community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
+                for community in community_list:
+                    print(community[0])
+                    part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
+                    for part in part_list:
+                        part = is_exist(part, "https://www.bayut.com/") # data exist ? if exitst return None and if does not exist return that part
+                        if part is not None:
+                            requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://www.bayut.com/")
+                else:
+                    requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://www.bayut.com/")
+        except:
+            pass
 
 driver.close()
