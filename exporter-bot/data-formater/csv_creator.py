@@ -38,7 +38,7 @@ for i in data:
     data_list.append([id, city, area, community, part, source])
 
 
-file = "./Data.csv"
+file = "/home/amir/Documents/export_data/exporter-bot/data-formater/Data.csv"
 
 
 with open(file, 'w', newline="") as f:
