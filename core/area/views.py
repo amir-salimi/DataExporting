@@ -26,3 +26,10 @@ class CityProperties(DetailView):
                 if part is not None:
                     part, part_created = Part.objects.get_or_create(community=community, part=part, source=source)
         return HttpResponse("ok")
+    
+
+def delete(request):
+    Area.objects.filter(source="https://www.bayut.com/")
+    Community.objects.filter(source="https://www.bayut.com/")
+    City.objects.filter(source="https://www.bayut.com/")
+    Part.objects.filter(source="https://www.bayut.com/")
