@@ -10,4 +10,4 @@ emp.columns
 result = emp.drop_duplicates(["part"], keep="first")
 for i in result["part"]:
     print(i)
-result.to_csv("./new.csv")
+result.to_csv("/home/amir/Documents/export_data/exporter-bot/data-formater/new.csv")
