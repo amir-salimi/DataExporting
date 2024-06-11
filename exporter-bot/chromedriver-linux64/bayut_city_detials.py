@@ -55,6 +55,8 @@ def get_prop_list(url, drop_down):
 prop_list = get_prop_list(url=url, drop_down=False) # get cities and save text and link of them to a list
 
 
+# print(prop_list)
+
 for p in prop_list:
     try:
         city = p[0]
