@@ -65,7 +65,7 @@ def get_eahc_project_plan(soup, link):
             plan_array.append(p.select_one("img").get("data-lazy-image"))
     plan_map = delete_repeat_data(plan_array)
     for i in plan_map:
-        requests.get(f"http://127.0.0.1:8000/opr_data/?link={link}&plan={i}")
+        requests.get(f"http://127.0.0.1:8000/opr-data/?link={link}&plan={i}")
 
 
 
@@ -73,7 +73,7 @@ def get_each_project_img(soup, link):
     imgs = soup.find_all(class_='gallery427-image fancybox')
     for img in imgs:
         image = img.get("href")
-        requests.get(f"http://127.0.0.1:8000/opr_data/?link={link}&img={image}")
+        requests.get(f"http://127.0.0.1:8000/opr-data/?link={link}&img={image}")
 
 
 
@@ -82,7 +82,7 @@ def get_each_project_about(soup, link):
         about = soup.find(id="about").find(class_="node").find_all(class_="col")
         for i in about:
             data = remove_new_line(i.text)
-            requests.get(f"http://127.0.0.1:8000/opr_data/?about={data}&link={link}")
+            requests.get(f"http://127.0.0.1:8000/opr-data/?about={data}&link={link}")
     except:
         pass
 
@@ -96,7 +96,7 @@ def get_each_project_frequently_question(soup, link):
             array.append(data)  
         for i in array:
             if i[::-1][:1] == "?":
-                requests.get(f"http://127.0.0.1:8000/opr_data/?question={i}&answer={array[array.index(i)+1]}&link={link}")
+                requests.get(f"http://127.0.0.1:8000/opr-data/?question={i}&answer={array[array.index(i)+1]}&link={link}")
     except:
         pass
 
@@ -130,7 +130,7 @@ def get_data_from_each_link(link, array):
             price = array[5]
             payment_plan = array[6]
             status = array[7]
-            requests.get(f"http://127.0.0.1:8000/opr_data/?bed_room={bed_room}&handover={HANDOVER}&area={area}&name={name}&location={location}&developer={developer}&category={category}&link={link}&approximate_location={approximate_location}&price={price}&payment_plan={payment_plan}&status={status}")
+            requests.get(f"http://127.0.0.1:8000/opr-data/?bed_room={bed_room}&handover={HANDOVER}&area={area}&name={name}&location={location}&developer={developer}&category={category}&link={link}&approximate_location={approximate_location}&price={price}&payment_plan={payment_plan}&status={status}")
 
     except:
         pass

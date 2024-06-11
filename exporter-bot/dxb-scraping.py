@@ -6,7 +6,7 @@ import requests
 import time
 
 
-dxb_url = "https://dxboffplan.com/fa/offplan-projects/"
+dxb_url = "https://dxboffplan.com/offplan-projects/"
 
 
 
@@ -21,10 +21,10 @@ def data_from_url(link_array):
         if each_page.status_code == 429:
             time.sleep(3)
 
-        name = remove_new_line(each_soup.find(class_="single-property-title").text)
+        name = each_soup.find(class_="single-property-title").text
         all_data = each_soup.find_all(class_="s-cl")
-        development = remove_new_line(each_soup.find("p", class_="development").text)
-        city = remove_new_line(each_soup.find("p", class_="city").text)
+        development = each_soup.find("p", class_="development").text
+        city = each_soup.find("p", class_="city").text
         img = each_soup.find(class_="head-img").select_one("img").get('src')
 
         for data in all_data:
@@ -44,8 +44,7 @@ def data_from_url(link_array):
         bed_room = data_array[4]
         bed_room = bed_room.split(".")
         for bed in bed_room:
-            if bed != "":
-                requests.get(f"http://127.0.0.1:8000/data/?name={name}&development={development}&city={city}&img={img}&price={price}&price_per_meter={price_per_meter}&area={area}&category={category}&bed_room={bed}&views={views}&handover={handover}&developer_project_number={developer_project_number}&developer={developer}&location={location}&link={link}")
+                requests.get(f"http://127.0.0.1:8000/dxb-data/?name={name}&development={development}&city={city}&img={img}&price={price}&price_per_meter={price_per_meter}&area={area}&category={category}&bed_room={bed}&views={views}&handover={handover}&developer_project_number={developer_project_number}&developer={developer}&location={location}&link={link}")
 
 
         data_array = []
