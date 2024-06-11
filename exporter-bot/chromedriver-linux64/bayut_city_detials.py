@@ -12,20 +12,6 @@ import os
 
 import pandas as pd
 
-def is_exist(part, source):
-    em = pd.read_csv("/home/amir/Documents/export_data/exporter-bot/data-formater/Data.csv")
-    
-    call(["python", "/home/amir/Documents/export_data/exporter-bot/data-formater/csv_creator.py"])
-    for i in em["part", "source"]:
-        print(i[0])
-        print(i[1])
-        if i[0] == part[0] and i[1] == source:
-            return None
-        else:
-            return part
-        
-    
-
 
 def chrome_webdriver():
     chromedriver_path = os.getcwd()+"/chromedriver"
@@ -69,31 +55,23 @@ def get_prop_list(url, drop_down):
         return None
     
 
-
-
 prop_list = get_prop_list(url=url, drop_down=False) # get cities and save text and link of them to a list
 
 if prop_list is not None:
     for p in prop_list:
-        try:
-            city = p[0]
-            city_link = p[1]
-            print(city)
-            area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
-            for area in area_list:
-                area_link = area[1]
-                print(area[0])
-                community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
+        city = p[0]
+        city_link = p[1]
+        area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
+        for area in area_list:
+            area_link = area[1]
+            community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
+            if community_list is not None:
                 for community in community_list:
                     print(community[0])
                     part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
                     for part in part_list:
-                        part = is_exist(part, "https://www.bayut.com/") # data exist ? if exitst return None and if does not exist return that part
-                        if part is not None:
-                            requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://www.bayut.com/")
+                        requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://www.bayut.com/")
                 else:
                     requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://www.bayut.com/")
-        except:
-            pass
 
 driver.close()

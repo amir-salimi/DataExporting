@@ -13,19 +13,6 @@ import requests
 import os
 
 
-def is_exist(part, source):
-    em = pd.read_csv("/home/amir/Documents/export_data/exporter-bot/data-formater/Data.csv")
-    
-    call(["python", "/home/amir/Documents/export_data/exporter-bot/data-formater/csv_creator.py"])
-    for i in em["part", "source"]:
-        print(i[0])
-        print(i[1])
-        if i[0] == part[0] and i[1] == source:
-            return None
-        else:
-            return part
-
-
 def chrome_webdriver():
     chromedriver_path = os.getcwd()+"/chromedriver"
     user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B137 Safari/601.1'
@@ -73,24 +60,16 @@ def get_prop_list(url, drop_down):
 prop_list = get_prop_list(url=url, drop_down=True) # get cities and save text and link of them to a list
 
 for p in prop_list:
-    try:
-        city = p[0]
-        city_link = p[1]
-        area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
-        for area in area_list:
-            area_link = area[1]
-            community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
-            for community in community_list:
-                part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
-                for part in part_list:
-                    print(part[0])
-                    part = is_exist(part, "https://uae.dubizzle.com/") # data exist ? if exitst return None and if does not exist return that part
-                    if part is not None:
-                        requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://uae.dubizzle.com/")
-            else:
-                pass
-                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://uae.dubizzle.com/")
-    except:
-        pass
-
+    city = p[0]
+    city_link = p[1]
+    area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
+    for area in area_list:
+        area_link = area[1]
+        community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
+        for community in community_list:
+            part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
+            for part in part_list:
+                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={exist[0]}&source=https://uae.dubizzle.com/")
+        else:
+            requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://uae.dubizzle.com/")
 driver.close()
