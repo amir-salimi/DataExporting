@@ -1,11 +1,18 @@
+import requests 
+
 from django.shortcuts import render
-
 from django.http import HttpResponse
-
-from django.views.generic import DetailView
-
+from django.views.generic import DetailView, CreateView
 
 from .models import City, Area, Community, Part
+
+def edit_svg(svg):
+    svg = svg.replace("L", "")
+    svg = svg.replace("M", "")
+    svg = svg.replace("Z", "")
+    svg = svg.split(" ")
+    svg = ' '.join(svg).split()
+    return svg
 
 
 class CityProperties(DetailView):
@@ -28,8 +35,20 @@ class CityProperties(DetailView):
         return HttpResponse("ok")
     
 
-def delete(request):
-    Area.objects.filter(source="https://www.bayut.com/")
-    Community.objects.filter(source="https://www.bayut.com/")
-    City.objects.filter(source="https://www.bayut.com/")
-    Part.objects.filter(source="https://www.bayut.com/")
+
+class GetLatLong(CreateView):
+    def get(self, request):
+        city = request.GET.get("city", None)
+        print(city)
+        url = f"https://nominatim.openstreetmap.org/search?city={city}&format=json&addressdetails=1&limit=1&polygon_svg=1"
+        a = requests.get(url).json()
+        svg = a[0]["svg"]
+        svg = edit_svg(svg)
+        svg = svg[::-1]
+        svg = [i.replace("-", "") for i in svg]
+        LatLong = []
+        for i in range(0, len(svg), 2):
+            LatLong.append([svg[i], svg[i+1]])
+
+
+        return HttpResponse(LatLong)
