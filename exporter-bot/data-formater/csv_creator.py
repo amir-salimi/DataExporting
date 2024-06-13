@@ -35,10 +35,10 @@ for i in data:
     area = get_area(get_community(i[2])[0][2])[0][1]
     city = get_city(get_area(get_community(i[2])[0][2])[0][2])[0][1]
     # print("id : ", id, "| city : ", city, "| area : ", area, "| community : ", community, "| part : ", part, "| source : ", source)
-    data_list.append([id, city, area, community, part, source])
+    data_list.append([id, city.lower(), area.lower(), community.lower(), part.lower(), source.lower()])
 
 
-file = "/home/amir/Documents/export_data/exporter-bot/data-formater/Data.csv"
+file = "/home/amir/Documents/export_data/exporter-bot/data-formater/asli.csv"
 
 
 with open(file, 'w', newline="") as f:
