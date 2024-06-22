@@ -4,5 +4,6 @@ from . import views
 
 urlpatterns = [
     path('city-prop/', views.CityProperties.as_view()),
-    path('lat-long/', views.GetLatLong.as_view())
+    path('lat-long/', views.GetLatLong.as_view()),
+    path('building/', views.BuildingSet.as_view())
 ]

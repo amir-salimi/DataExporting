@@ -1,8 +1,30 @@
 from django.contrib import admin
 
-from .models import City, Area, Community, Part
+from .models import City, Area, Community, Part, Building, Detail, BuildingImg, Highlight
 
-admin.site.register(City)
-admin.site.register(Area)
-admin.site.register(Community)
-admin.site.register(Part)
+class SearchPart(admin.ModelAdmin):
+    search_fields = ["part"]
+
+
+class SearchCommunity(admin.ModelAdmin):
+    search_fields = ["community"]
+
+
+class SearchBuildings(admin.ModelAdmin):
+    search_fields = ["name"]
+
+class SearchArea(admin.ModelAdmin):
+    search_fields = ["area"]
+
+
+class SearchCity(admin.ModelAdmin):
+    search_fields = ["city"]
+
+admin.site.register(City, SearchCity)
+admin.site.register(Area, SearchArea)
+admin.site.register(Community, SearchCommunity)
+admin.site.register(Part, SearchPart)
+admin.site.register(Detail)
+admin.site.register(Building, SearchBuildings)
+admin.site.register(BuildingImg)
+admin.site.register(Highlight)
