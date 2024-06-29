@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import City, Area, Community, Part, Building, Detail, BuildingImg, Highlight
+from .models import City, Area, Community, Part, Building, Detail, BuildingImg, Highlight, UnitDetail, UnitOfBuilding, UnitPhoto
 
 class SearchPart(admin.ModelAdmin):
     search_fields = ["part"]
@@ -11,7 +11,7 @@ class SearchCommunity(admin.ModelAdmin):
 
 
 class SearchBuildings(admin.ModelAdmin):
-    search_fields = ["name"]
+    search_fields = ["name", "community"]
 
 class SearchArea(admin.ModelAdmin):
     search_fields = ["area"]
@@ -28,3 +28,6 @@ admin.site.register(Detail)
 admin.site.register(Building, SearchBuildings)
 admin.site.register(BuildingImg)
 admin.site.register(Highlight)
+admin.site.register(UnitPhoto)
+admin.site.register(UnitDetail)
+admin.site.register(UnitOfBuilding)

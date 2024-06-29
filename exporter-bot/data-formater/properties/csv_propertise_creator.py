@@ -38,7 +38,7 @@ for i in data:
     data_list.append([id, city.lower(), area.lower(), community.lower(), part.lower(), source.lower()])
 
 
-file = "/home/amir/Documents/export_data/exporter-bot/data-formater/asli.csv"
+file = "/home/amir/Documents/export_data/exporter-bot/data-formater/properties/asli.csv"
 
 
 with open(file, 'w', newline="") as f:

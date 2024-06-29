@@ -63,7 +63,44 @@ class Building(models.Model):
     status = models.CharField(max_length=64)
     location = models.CharField(max_length=64)
     about = models.TextField()
-    
     details = models.ManyToManyField(Detail)
     img_link = models.ManyToManyField(BuildingImg)
     highlight = models.ManyToManyField(Highlight)
+    
+    is_ok = models.SmallIntegerField(default=0)
+
+    city = models.CharField(max_length=64, null=True, blank=True)
+    area = models.CharField(max_length=64, null=True, blank=True)
+    community = models.CharField(max_length=64, null=True, blank=True)
+    part = models.CharField(max_length=64, null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.name
+    
+    # class Meta:
+    #     ordering = ('name',)
+
+
+class UnitPhoto(models.Model):
+    link = models.CharField(max_length=128)
+    img_link = models.CharField(max_length=128)
+
+
+class UnitDetail(models.Model):
+    link = models.CharField(max_length=128)
+    key = models.CharField(max_length=64)
+    value = models.CharField(max_length=256)
+
+
+class UnitOfBuilding(models.Model):
+    building_name = models.ForeignKey(Building, on_delete=models.CASCADE)
+    bed = models.CharField(max_length=32)
+    bath = models.CharField(max_length=32)
+    area = models.CharField(max_length=32)
+    desc = models.TextField()
+    link = models.CharField(max_length=128)
+    photo = models.ManyToManyField(UnitPhoto, null=True, blank=True)
+    detail = models.ManyToManyField(UnitDetail, null=True, blank=True)
+
+    # class Meta:
+    #     ordering = ('building_name',)

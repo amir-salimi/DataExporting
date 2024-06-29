@@ -50,7 +50,7 @@ def get_prop_list(url, drop_down):
     pros = get_properties(url=url, drop_down=drop_down)
     try:
         prop_list = [[c.text.split("\n")[0], c.get_attribute("href")] for c in pros if c.text.split("\n")[0] != ''] # cleaning propertice and get cities and links
-        return prop_list
+        return {prop_list}
     except:
         return None
     
@@ -61,20 +61,23 @@ if prop_list is not None:
     for p in prop_list:
         city = p[0]
         city_link = p[1]
-        if city == "Abu Dhabi":
+        if city == "Abu Dhabi": # we have 1 category and subcategory
             area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
-            if area_list is not None:
+            if area_list is not None: # we have 2 category and subcategory
                 for area in area_list:
                     area_link = area[1]
                     community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
                     print(community_list)
-                    if community_list is not None:
+                    if community_list is not None: # we have 3 category and subcategory
                         for community in community_list:
                             print(community[0])
                             part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
-                            if part_list is not None:
+                            if part_list is not None: # we have 4 category and subcategory
                                 for part in part_list:
                                     requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://www.bayut.com/")
-                        else:
-                            requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://www.bayut.com/")
+                            else:
+                                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&part={community[0]}&source=https://www.bayut.com/")
+                    else:
+                        requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={part}&source=https://www.bayut.com/")
+            
 driver.close()

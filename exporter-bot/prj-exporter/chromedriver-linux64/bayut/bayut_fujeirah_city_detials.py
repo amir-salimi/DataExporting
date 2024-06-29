@@ -75,8 +75,10 @@ if prop_list is not None:
                             if part_list is not None:
                                 for part in part_list:
                                     requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://www.bayut.com/")
-                        else:
-                            requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://www.bayut.com/")
+                            else:
+                                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://www.bayut.com/")
+                    else:
+                        requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&source=https://www.bayut.com/")
 driver.close()
 
 
