@@ -190,15 +190,12 @@ def get_each_prop_detail(all_link, building_name):
                     req = requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&building_name={main_building_name}&building_link={building_current_link}&community={community}&area={area}&city={city}&bed={bed}&bath={bath}&price={price}&description={desc}&unit_area={unit_area}")
         except:
             pass
-    
     is_ok(building_name)
-
-
-
-
-          
-
            
+
+
+
+
 def get_each_prop(building_name):
     all_link = []
     time.sleep(5)
@@ -221,9 +218,8 @@ def get_each_prop(building_name):
     get_each_prop_detail(all_link, building_name)
 
 
-
 for i in data: 
-    if i[0] < 700 and i[10] == 0:
+    if i[0] < 1400 and i[0] > 699 and i[10] == 0:
         print(i[0])
         driver.get("https://www.bayut.com/")
         input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
