@@ -67,10 +67,8 @@ if prop_list is not None:
                 for area in area_list:
                     area_link = area[1]
                     community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
-                    print(community_list)
                     if community_list is not None: # we have 3 category and subcategory
                         for community in community_list:
-                            print(community[0])
                             part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
                             if part_list is not None: # we have 4 category and subcategory
                                 for part in part_list:
@@ -78,6 +76,6 @@ if prop_list is not None:
                             else:
                                 requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&part={community[0]}&source=https://www.bayut.com/")
                     else:
-                        requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={part}&source=https://www.bayut.com/")
+                        requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&part={area[0]}&source=https://www.bayut.com/")
             
 driver.close()
