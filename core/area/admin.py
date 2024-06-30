@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import City, Area, Community, Part, Building, Detail, BuildingImg, Highlight, UnitDetail, UnitOfBuilding, UnitPhoto
+from .models import City, Area, Community, Part, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto
 
 class SearchPart(admin.ModelAdmin):
     search_fields = ["part"]
@@ -24,10 +24,10 @@ admin.site.register(City, SearchCity)
 admin.site.register(Area, SearchArea)
 admin.site.register(Community, SearchCommunity)
 admin.site.register(Part, SearchPart)
-admin.site.register(Detail)
+admin.site.register(BuildingDetail)
 admin.site.register(Building, SearchBuildings)
 admin.site.register(BuildingImg)
-admin.site.register(Highlight)
+admin.site.register(BuildingHighlight)
 admin.site.register(UnitPhoto)
 admin.site.register(UnitDetail)
 admin.site.register(UnitOfBuilding)

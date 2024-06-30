@@ -6,7 +6,7 @@ from django.db.models import Q, F
 from django.http import HttpRequest, HttpResponse
 from django.views.generic import DetailView, CreateView
 
-from .models import City, Area, Community, Part, Building, Detail, BuildingImg, BuildingStatus, Highlight, UnitDetail, UnitOfBuilding, UnitPhoto
+from .models import City, Area, Community, Part, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto
 from .filter import ProductFilter
 
 def edit_svg(svg):
@@ -27,30 +27,44 @@ class CityProperties(DetailView):
         part = request.GET.get("part", None) 
         source = request.GET.get("source", None) 
 
-        city, city_created = City.objects.get_or_create(city=city, source=source)
+        city, city_created = City.objects.get_or_create(name=city, source=source)
 
-        if area is not None:
-            area, area_created = Area.objects.get_or_create(area=area, city=city, source=source)
-        if community is not None:
-            community, community_created = Community.objects.get_or_create(area=area, community=community, source=source)
-        if part is not None:
-            part, part_created = Part.objects.get_or_create(community=community, part=part, source=source)
+        if part and community and area and city is not None:
+            area, area_created = Area.objects.get_or_create(city=city, name=area, source=source)
+            community, community_created = Community.objects.get_or_create(name=community, area=area, city=city, source=source)
+            part, part_created = Part.objects.get_or_create(community=community, name=part, source=source, area=area, city=city)
+
+
+        # if part and area and city is not None:
+        #     area, area_created = Area.objects.get_or_create(city=city, name=area, source=source)
+        #     part, part_created = Part.objects.get_or_create(name=part, area=area, source=source, city=city)
+
+
+        # if part and city is not None:
+        #     part, part_created = Part.objects.get_or_create(name=part, source=source, city=city)
+
+            
+            
         return HttpResponse("ok")
     
 
 class GetLatLong(CreateView):
     def get(self, request):
-        city = request.GET.get("city", None)
-        url = f"https://nominatim.openstreetmap.org/search?city={city}&format=json&addressdetails=1&limit=1&polygon_svg=1"
-        a = requests.get(url).json()
-        svg = a[0]["svg"]
-        svg = edit_svg(svg)
-        svg = svg[::-1]
-        svg = [i.replace("-", "") for i in svg]
-        LatLong = []
-        for i in range(0, len(svg), 2):
-            LatLong.append([svg[i], svg[i+1]])
-        return HttpResponse(LatLong)
+        part = Part.objects.all()
+        print(part)
+        for i in part:
+            Community_id = i.community
+        # city = request.GET.get("city", None)
+        # url = f"https://nominatim.openstreetmap.org/search?city={city}&format=json&addressdetails=1&limit=1&polygon_svg=1"
+        # a = requests.get(url).json()
+        # svg = a[0]["svg"]
+        # svg = edit_svg(svg)
+        # svg = svg[::-1]
+        # svg = [i.replace("-", "") for i in svg]
+        # LatLong = []
+        # for i in range(0, len(svg), 2):
+        #     LatLong.append([svg[i], svg[i+1]])
+        # return HttpResponse(LatLong)
     
 
 class BuildingSet(CreateView):
@@ -66,20 +80,20 @@ class BuildingSet(CreateView):
         about = request.GET.get("about", None)
 
         if link and highlight:
-            Highlight.objects.get_or_create(link=link, highlight=highlight)
+            BuildingHighlight.objects.get_or_create(building_link=link, highlight=highlight)
         
         if link and img_link:
-            BuildingImg.objects.get_or_create(link=link, img_link=img_link)
+            BuildingImg.objects.get_or_create(building_link=link, img_link=img_link)
         
         if link and key and value:
-            Detail.objects.get_or_create(link=link, key=key, value=value)
+            BuildingDetail.objects.get_or_create(building_link=link, key=key, value=value)
 
         if link and status and name and location and about:
-            highlights = Highlight.objects.filter(link=link)
-            buildingImgs = BuildingImg.objects.filter(link=link)
-            details = Detail.objects.filter(link=link)
+            highlights = BuildingHighlight.objects.filter(building_link=link)
+            buildingImgs = BuildingImg.objects.filter(building_link=link)
+            details = BuildingDetail.objects.filter(building_link=link)
             try:
-                building, building_created = Building.objects.get_or_create(name=name, link=link, status=status, location=location, about=about)
+                building, building_created = Building.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)
                 
                 for highlight in highlights:
                     building.highlight.add(highlight)
@@ -125,35 +139,34 @@ class BuildingUnit(CreateView):
                 building = ProductFilter(building_name, Building.objects.all()).data
                 
                 if building:
-                    building = Building.objects.filter(Q(name__iexact=building) | Q(link=building_link)).first()
+                    building = Building.objects.filter(Q(name__iexact=building) | Q(building_link=building_link)).first()
                 else:
-                    building = Building.objects.filter(Q(name__iexact=building_name) | Q(link=building_link)).first()
+                    building = Building.objects.filter(Q(name__iexact=building_name) | Q(building_link=building_link)).first()
 
                 building.is_ok=1
                 building.save()
 
         if link and key and value :
-            UnitDetail.objects.get_or_create(link=link, key=key, value=value)
+            UnitDetail.objects.get_or_create(building_link=link, key=key, value=value)
         
         if link and img:
-            UnitPhoto.objects.get_or_create(link=link, img_link=img)
+            UnitPhoto.objects.get_or_create(building_link=link, img_link=img)
 
 
         if building_name or building_link:
             if price and bath and bed and link:
                 building = ProductFilter(building_name, Building.objects.all()).data
-                print(building)
 
                 if building:
-                    building = Building.objects.filter(Q(name__iexact=building) | Q(link=building_link)).first()
+                    building = Building.objects.filter(Q(name__iexact=building) | Q(building_link=building_link)).first()
                 else:
-                    building = Building.objects.filter(Q(name__iexact=building_name) | Q(link=building_link)).first()
+                    building = Building.objects.filter(Q(name__iexact=building_name) | Q(building_link=building_link)).first()
 
                 
-                unit, unit_created = UnitOfBuilding.objects.get_or_create(link=link, building_name=building, bed=bed, bath=bath, area=unit_area, desc=description)
+                unit, unit_created = UnitOfBuilding.objects.get_or_create(building_link=link, building_name=building, bed=bed, bath=bath, area=unit_area, desc=description)
 
-                photos = UnitPhoto.objects.filter(link=link)
-                details = UnitDetail.objects.filter(link=link)
+                photos = UnitPhoto.objects.filter(building_link=link)
+                details = UnitDetail.objects.filter(building_link=link)
             
                 for p in photos:
                     unit.photo.add(p)
