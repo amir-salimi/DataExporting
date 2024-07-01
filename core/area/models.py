@@ -40,13 +40,6 @@ class Community(models.Model):
     class Meta:
         db_table = "communities"
         verbose_name_plural = 'Communities'
-
-class Part(models.Model):
-    city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING, null=True, blank=True)
-    area = models.ForeignKey(to=Area, on_delete=models.DO_NOTHING, null=True, blank=True)
-    community = models.ForeignKey(to=Community, on_delete=models.DO_NOTHING, null=True, blank=True)
-    name = models.CharField(max_length=64)
-    source = models.CharField(max_length=128)
     
 
 #----------------------------------------------------------------
@@ -60,7 +53,7 @@ class BuildingDetail(models.Model):
 
     class Meta:
         db_table = "building_details"
-        verbose_name_plural = 'Detials'
+        verbose_name_plural = 'Building Detials'
 
 
 class BuildingImg(models.Model):
@@ -79,6 +72,26 @@ class BuildingHighlight(models.Model):
     class Meta:
         db_table = "building_highlights"
         verbose_name_plural = 'Building Highlights'
+
+
+class Part(models.Model):
+    city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING, null=True, blank=True)
+    area = models.ForeignKey(to=Area, on_delete=models.DO_NOTHING, null=True, blank=True)
+    community = models.ForeignKey(to=Community, on_delete=models.DO_NOTHING, null=True, blank=True)
+    name = models.CharField(max_length=64)
+    source = models.CharField(max_length=128)
+
+    building_link = models.CharField(max_length=128, null=True, blank=True)
+    status = models.CharField(max_length=64, null=True, blank=True)
+    location = models.CharField(max_length=64, null=True, blank=True)
+    about = models.TextField(null=True, blank=True)
+    details = models.ManyToManyField(BuildingDetail, null=True, blank=True)
+    img_link = models.ManyToManyField(BuildingImg, null=True, blank=True)
+    highlight = models.ManyToManyField(BuildingHighlight, null=True, blank=True)
+    
+    is_ok = models.SmallIntegerField(default=0, null=True, blank=True)
+    
+
 
 
 class Building(models.Model):

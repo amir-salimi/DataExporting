@@ -50,10 +50,22 @@ class CityProperties(DetailView):
 
 class GetLatLong(CreateView):
     def get(self, request):
-        part = Part.objects.all()
-        print(part)
-        for i in part:
-            Community_id = i.community
+        buildings = []
+        all_building = Building.objects.all()
+        for building in all_building:
+            # print(building.name)
+            a = Part.objects.filter(name__iexact=building.name.lower())
+            if a:
+                pass
+            else:
+                buildings.append(building.name)
+
+        # print(set(buildings))        
+
+
+
+
+
         # city = request.GET.get("city", None)
         # url = f"https://nominatim.openstreetmap.org/search?city={city}&format=json&addressdetails=1&limit=1&polygon_svg=1"
         # a = requests.get(url).json()
