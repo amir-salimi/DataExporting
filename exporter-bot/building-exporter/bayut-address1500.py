@@ -43,7 +43,7 @@ def get_address(building):
         a = driver.find_element(By.XPATH, "//*[@aria-label='Listing']").find_element(By.XPATH, "//*[@aria-label='Location']")
         cursor.execute(f"SELECT * FROM buildings WHERE id={building[0]}")
         building = cursor.fetchall()
-
+        community = None
         if str(building[0][4]).lower() in a.text.lower():
             all_address = a.text.split(",")
             building_name = building[0][1]
@@ -58,45 +58,43 @@ def get_address(building):
                 area = all_address[2][1:]
                 city = all_address[3][1:]
             
-            print(building_name)
-            print(community)
-            print(area)
-            print(city)
             requests.get(f"http://127.0.0.1:8000/city-prop/?building_name={building_name}&community={community}&area={area}&city={city}")
     except:
-        pass
+        pass   
              
 
 for i in data: 
-    if i[4] != "None" and i[0] < 1000 and i[6] == 0:
-        driver.get("https://www.bayut.com/")
-        input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
-        input.send_keys(f"{i[1]}")
-        time.sleep(2)
-        input.send_keys(Keys.SPACE)
-        time.sleep(10)
-        input.send_keys(Keys.ENTER)
-        time.sleep(3)
-        driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
-        time.sleep(5)
-
-
-        if driver.current_url == "https://www.bayut.com/for-sale/property/uae/":
+    try:
+        if i[4] != "None" and 1000 < i[0] < 1500 and i[6] == 0:
             driver.get("https://www.bayut.com/")
             input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
             input.send_keys(f"{i[1]}")
+            time.sleep(2)
+            input.send_keys(Keys.SPACE)
             time.sleep(10)
             input.send_keys(Keys.ENTER)
             time.sleep(3)
             driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
-            time.sleep(10)
-            a = driver.find_element(By.XPATH, "//*[@aria-label='Listing']").find_element(By.XPATH, "//*[@aria-label='Location']")
+            time.sleep(5)
+
+
             if driver.current_url == "https://www.bayut.com/for-sale/property/uae/":
-                pass
+                driver.get("https://www.bayut.com/")
+                input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
+                input.send_keys(f"{i[1]}")
+                time.sleep(10)
+                input.send_keys(Keys.ENTER)
+                time.sleep(3)
+                driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
+                time.sleep(10)
+                a = driver.find_element(By.XPATH, "//*[@aria-label='Listing']").find_element(By.XPATH, "//*[@aria-label='Location']")
+                if driver.current_url == "https://www.bayut.com/for-sale/property/uae/":
+                    pass
+                else:
+                    get_address(i)
             else:
                 get_address(i)
-        else:
-            get_address(i)
-
+    except:
+        pass
 
         

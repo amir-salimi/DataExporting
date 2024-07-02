@@ -43,7 +43,7 @@ def get_address(building):
         a = driver.find_element(By.XPATH, "//*[@aria-label='Listing']").find_element(By.XPATH, "//*[@aria-label='Location']")
         cursor.execute(f"SELECT * FROM buildings WHERE id={building[0]}")
         building = cursor.fetchall()
-
+        community = None
         if str(building[0][4]).lower() in a.text.lower():
             all_address = a.text.split(",")
             building_name = building[0][1]
@@ -58,17 +58,12 @@ def get_address(building):
                 area = all_address[2][1:]
                 city = all_address[3][1:]
             
-            print(building_name)
-            print(community)
-            print(area)
-            print(city)
             requests.get(f"http://127.0.0.1:8000/city-prop/?building_name={building_name}&community={community}&area={area}&city={city}")
     except:
-        pass
-             
+        pass        
 
 for i in data: 
-    if i[4] != "None" and i[0] < 1000 and i[6] == 0:
+    if i[4] != "None" and 2000 < i[0] < 2500 and i[6] == 0:
         driver.get("https://www.bayut.com/")
         input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
         input.send_keys(f"{i[1]}")

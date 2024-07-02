@@ -68,7 +68,7 @@ def get_address(building):
              
 
 for i in data: 
-    if i[4] != "None" and i[0] < 1000 and i[6] == 0:
+    if i[4] != "None" and 2500 < i[0] < 3000 and i[6] == 0:
         driver.get("https://www.bayut.com/")
         input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
         input.send_keys(f"{i[1]}")
