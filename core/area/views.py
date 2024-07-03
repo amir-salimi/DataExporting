@@ -21,27 +21,32 @@ def edit_svg(svg):
 class CityProperties(DetailView):
     def get(self, request):
 
-        city = request.GET.get("city", None)
+        building_name = request.GET.get("building_name", None) 
+        city = request.GET.get("city", None) 
         area = request.GET.get("area", None) 
         community = request.GET.get("community", None) 
-        part = request.GET.get("part", None) 
-        source = request.GET.get("source", None) 
 
-        city, city_created = City.objects.get_or_create(name=city, source=source)
+        if building_name != None:
+            building = Building.objects.filter(name=building_name).first()
+            building.city = city
+            building.area = area
+            building.community = community
+            building.is_ok = 1
+            building.save()
 
-        if part and community and area and city is not None:
-            area, area_created = Area.objects.get_or_create(city=city, name=area, source=source)
-            community, community_created = Community.objects.get_or_create(name=community, area=area, city=city, source=source)
-            part, part_created = Part.objects.get_or_create(community=community, name=part, source=source, area=area, city=city)
+        # city = request.GET.get("city", None)
+        # area = request.GET.get("area", None) 
+        # community = request.GET.get("community", None) 
+        # part = request.GET.get("part", None) 
+        # source = request.GET.get("source", None) 
 
+        # city, city_created = City.objects.get_or_create(name=city, source=source)
 
-        # if part and area and city is not None:
+        # if part and community and area and city is not None:
         #     area, area_created = Area.objects.get_or_create(city=city, name=area, source=source)
-        #     part, part_created = Part.objects.get_or_create(name=part, area=area, source=source, city=city)
+        #     community, community_created = Community.objects.get_or_create(name=community, area=area, city=city, source=source)
+        #     part, part_created = Part.objects.get_or_create(community=community, name=part, source=source, area=area, city=city)
 
-
-        # if part and city is not None:
-        #     part, part_created = Part.objects.get_or_create(name=part, source=source, city=city)
 
             
             
@@ -50,15 +55,83 @@ class CityProperties(DetailView):
 
 class GetLatLong(CreateView):
     def get(self, request):
-        buildings = []
         all_building = Building.objects.all()
+
         for building in all_building:
-            # print(building.name)
-            a = Part.objects.filter(name__iexact=building.name.lower())
-            if a:
-                pass
-            else:
-                buildings.append(building.name)
+            if building.is_ok == 1:
+                details = BuildingDetail.objects.filter(building_link=building.building_link)
+                images = BuildingImg.objects.filter(building_link=building.building_link)
+                highlights = BuildingHighlight.objects.filter(building_link=building.building_link)
+                try:
+                    city, city_created = City.objects.get_or_create(name__iexact=building.city).first()
+                except:
+                    city = City.objects.filter(name__iexact=building.city).first()
+                
+
+                try:
+                    area, area_created = Area.objects.get_or_create(name__iexact=building.area).first()
+                except:
+                    area = Area.objects.filter(name__iexact=building.area).first()
+                    
+
+                try:
+                    community, community_created = Community.objects.get_or_create(name__iexact=building.community).first()
+                    try:
+                        community = Community.objects.filter(name__iexact=building.community).first()
+                    except:
+                        pass
+                except:
+                    community = None
+                    
+                part, part_created = Part.objects.get_or_create(city=city, area=area, community=community, name=building.name, building_link=building.building_link, status=building.status, location=building.location, about=building.about)
+
+                if part_created == True:
+                    for detail in details:
+                        part.details.add(detail)
+                        part.save()
+
+                    for image in images:
+                        part.img_link.add(image)
+                        part.save()
+
+                    for highlight in highlights:
+                        part.highlight.add(highlight)
+                        part.save()
+                    # print(building)
+                    
+                    Building.objects.filter(id=building.id).delete()
+
+                
+        # for building in all_building:
+        #     # print(building.name)
+        #     a = Part.objects.filter(name__iexact=building.name.lower())
+        #     if a:
+        #         print(a)
+        #         a = a.first()
+        #         a.building_link = building.building_link
+        #         a.status = building.status
+        #         a.location = building.location
+        #         a.about = building.about
+        #         details = BuildingDetail.objects.filter(building_link=building.building_link)
+        #         highlights = BuildingHighlight.objects.filter(building_link=building.building_link)
+        #         images = BuildingImg.objects.filter(building_link=building.building_link)
+        #         for detial in details:
+        #             a.details.add(detial)
+        #             a.save()
+
+        #         for highlight in highlights:
+        #             a.highlight.add(highlight)
+        #             a.save()
+
+        #         for image in images:
+        #             a.img_link.add(image)
+        #             a.save()
+
+        #         a.save()
+        #         print(Building.objects.filter(name=building.name).delete())
+        #         # break
+        #     else:
+        #         buildings.append(building.name)
 
         # print(set(buildings))        
 
@@ -105,8 +178,20 @@ class BuildingSet(CreateView):
             buildingImgs = BuildingImg.objects.filter(building_link=link)
             details = BuildingDetail.objects.filter(building_link=link)
             try:
-                building, building_created = Building.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)
-                
+                # building, building_created = Building.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)    
+
+
+
+                building = Part.objects.filter(name=name).first()
+                building.building_link = link
+                building.status = status
+                building.location = location
+                building.about = about
+                building.save()
+
+
+
+                building, building_created = Part.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)
                 for highlight in highlights:
                     building.highlight.add(highlight)
                     building.save()

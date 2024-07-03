@@ -3,22 +3,23 @@ from django.contrib import admin
 from .models import City, Area, Community, Part, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto
 
 class SearchPart(admin.ModelAdmin):
-    search_fields = ["part"]
+    search_fields = ["name"]
 
 
 class SearchCommunity(admin.ModelAdmin):
-    search_fields = ["community"]
+    search_fields = ["name"]
 
 
 class SearchBuildings(admin.ModelAdmin):
-    search_fields = ["name", "community"]
+    search_fields = ["is_ok"]
 
 class SearchArea(admin.ModelAdmin):
-    search_fields = ["area"]
+    search_fields = ["name"]
 
 
 class SearchCity(admin.ModelAdmin):
-    search_fields = ["city"]
+    search_fields = ["name"]
+
 
 admin.site.register(City, SearchCity)
 admin.site.register(Area, SearchArea)

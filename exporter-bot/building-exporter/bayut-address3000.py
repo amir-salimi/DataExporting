@@ -68,35 +68,38 @@ def get_address(building):
              
 
 for i in data: 
-    if i[4] != "None" and 2500 < i[0] < 3000 and i[6] == 0:
-        driver.get("https://www.bayut.com/")
-        input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
-        input.send_keys(f"{i[1]}")
-        time.sleep(2)
-        input.send_keys(Keys.SPACE)
-        time.sleep(10)
-        input.send_keys(Keys.ENTER)
-        time.sleep(3)
-        driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
-        time.sleep(5)
-
-
-        if driver.current_url == "https://www.bayut.com/for-sale/property/uae/":
+    try:
+        if i[4] != "None" and 2787 < i[0] < 3000 and i[6] == 0:
+            print(i[0])
             driver.get("https://www.bayut.com/")
             input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
             input.send_keys(f"{i[1]}")
-            time.sleep(10)
+            time.sleep(2)
+            input.send_keys(Keys.SPACE)
+            time.sleep(5)
             input.send_keys(Keys.ENTER)
             time.sleep(3)
             driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
-            time.sleep(10)
-            a = driver.find_element(By.XPATH, "//*[@aria-label='Listing']").find_element(By.XPATH, "//*[@aria-label='Location']")
+            time.sleep(5)
+
+
             if driver.current_url == "https://www.bayut.com/for-sale/property/uae/":
-                pass
+                driver.get("https://www.bayut.com/")
+                input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
+                input.send_keys(f"{i[1]}")
+                time.sleep(5)
+                input.send_keys(Keys.ENTER)
+                time.sleep(3)
+                driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
+                time.sleep(5)
+                a = driver.find_element(By.XPATH, "//*[@aria-label='Listing']").find_element(By.XPATH, "//*[@aria-label='Location']")
+                if driver.current_url == "https://www.bayut.com/for-sale/property/uae/":
+                    pass
+                else:
+                    get_address(i)
             else:
                 get_address(i)
-        else:
-            get_address(i)
 
-
+    except:
+        pass    
         

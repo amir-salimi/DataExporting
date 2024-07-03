@@ -91,7 +91,8 @@ class Part(models.Model):
     
     is_ok = models.SmallIntegerField(default=0, null=True, blank=True)
     
-
+    def __str__(self) -> str:
+        return self.name
 
 
 class Building(models.Model):
