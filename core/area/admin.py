@@ -11,7 +11,7 @@ class SearchCommunity(admin.ModelAdmin):
 
 
 class SearchBuildings(admin.ModelAdmin):
-    search_fields = ["is_ok"]
+    search_fields = ["name"]
 
 class SearchArea(admin.ModelAdmin):
     search_fields = ["name"]
