@@ -21,7 +21,7 @@ class Area(models.Model):
     source = models.CharField(max_length=128)
 
     def __str__(self) -> str:
-        return self.name
+        return str(self.name)  
     
     class Meta:
         db_table = "areas"
