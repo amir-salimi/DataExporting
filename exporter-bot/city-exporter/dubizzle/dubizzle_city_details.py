@@ -62,19 +62,18 @@ prop_list = get_prop_list(url=url, drop_down=True) # get cities and save text an
 for p in prop_list:
     city = p[0]
     city_link = p[1]
-    print(city)
-    if city == "Ras Al Khaimah" or city == "Umm al Quwain" or city == "Fujairah" or city == "Al Ain":
-        area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
-        if area_list is not None:
-            for area in area_list:
-                area_link = area[1]
-                community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
-                if community_list is not None:
-                    for community in community_list:
-                        part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
-                        if part_list is not None:
-                            for part in part_list:
-                                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://uae.dubizzle.com/")
-                else:
-                    requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://uae.dubizzle.com/")
+    area_list = get_prop_list(url=city_link, drop_down=False) # get areas and save text and link of them to a list
+    if area_list is not None:
+        for area in area_list:
+            area_link = area[1]
+            community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
+            if community_list is not None:
+                for community in community_list:
+                    part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
+                    if part_list is not None:
+                        for part in part_list:
+                            requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://uae.dubizzle.com/")
+                    else:
+                        requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&source=https://uae.dubizzle.com/")
 driver.close()
+

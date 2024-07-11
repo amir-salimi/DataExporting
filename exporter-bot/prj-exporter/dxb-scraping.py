@@ -55,7 +55,7 @@ def data_from_url(link_array):
 
 def get_link():
     link_array = []
-    for i in range(42, 50): #233
+    for i in range(0, 300): #233
         print(i)
         page = requests.get(dxb_url+f"/page/{i}/")
         soup = BeautifulSoup(page.content, "html.parser")

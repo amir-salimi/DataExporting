@@ -223,7 +223,7 @@ def get_each_prop(building_name):
 
 
 for i in data: 
-    if i[0] < 700 and i[10] == 0:
+    if i[10] == 0:
         print(i[0])
         driver.get("https://www.bayut.com/")
         input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
