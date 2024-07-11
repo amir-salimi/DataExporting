@@ -37,6 +37,7 @@ class CityProperties(DetailView):
 
 class GetLatLong(CreateView):
     def get(self, request):
+
         city = request.GET.get("city", None)
         url = f"https://nominatim.openstreetmap.org/search?city={city}&format=json&addressdetails=1&limit=1&polygon_svg=1"
         a = requests.get(url).json()
@@ -71,38 +72,35 @@ class BuildingSet(CreateView):
         if link and key and value:
             BuildingDetail.objects.get_or_create(building_link=link, key=key, value=value)
 
-        if link and status and name and location and about:
-            highlights = BuildingHighlight.objects.filter(building_link=link)
-            buildingImgs = BuildingImg.objects.filter(building_link=link)
-            details = BuildingDetail.objects.filter(building_link=link)
-            try:
-                # building, building_created = Building.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)    
+        if link and name and location and about:
 
-
-
-                building = Part.objects.filter(name=name).first()
+            buildings = Part.objects.filter(name__iexact=name)
+            print(buildings)
+            for building in buildings:
                 building.building_link = link
                 building.status = status
                 building.location = location
                 building.about = about
+                building.is_ok = 1
                 building.save()
 
 
+            # highlights = BuildingHighlight.objects.filter(building_link=link)
+            # buildingImgs = BuildingImg.objects.filter(building_link=link)
+            # details = BuildingDetail.objects.filter(building_link=link)
 
-                building, building_created = Part.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)
-                for highlight in highlights:
-                    building.highlight.add(highlight)
-                    building.save()
+            # building, building_created = Building.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)    
+            # building, building_created = Part.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)
 
-                for img in buildingImgs:
-                    building.img_link.add(img)
-                    building.save()
-
-                for detail in details:
-                    building.details.add(detail)
-                    building.save()
-            except:
-                pass
+            # for highlight in highlights:
+            #     building.highlight.add(highlight)
+            #     building.save()
+            # for img in buildingImgs:
+            #     building.img_link.add(img)
+            #     building.save()
+            # for detail in details:
+            #     building.details.add(detail)
+            #     building.save()
             
 
         return HttpResponse("ok")
@@ -179,4 +177,5 @@ class BuildingUnit(CreateView):
 
 
         return HttpResponse()
+
 
