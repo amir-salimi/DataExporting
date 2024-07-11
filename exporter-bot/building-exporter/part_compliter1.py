@@ -5,9 +5,6 @@ from selenium.webdriver.common.keys import Keys
 
 from urllib.parse import urlparse, parse_qsl
 
-
-
-import requests
 import sqlite3
 import time
 import os
@@ -31,109 +28,61 @@ cursor = connection.cursor()
 cursor.execute("SELECT * FROM area_part")
 
 data = cursor.fetchall()
-
-
 driver = chrome_webdriver()
 
+import requests
 
-def get_each_building_detail(link, building_name_db):
-    driver.get(link)
+def get_detail(name, location):
+    link = driver.current_url
+    status = ""
+    my_list = []
     try:
-        highlights = driver.find_element(By.CLASS_NAME, "markdown-elements").text
-        highlights = highlights.split("\n")
-        for h in highlights: # link and highlight
-            requests.get(f"http://127.0.0.1:8000/building?link={link}&highlight={h}")
-        # [print(h) for h in highlights] # link and highlight
-    except:
-        highlights = None
+        all_main_detail = driver.find_element(By.ID, "location-guide-blueprint-main-image").text
+        each_main_details = all_main_detail.split("\n")
+        for each in range(len(each_main_details)):
+            if each_main_details[each] == "Building type" :
+                instance = each + 1
+                print("type = ", each_main_details[instance])
 
-    try:
-        m = driver.find_elements(By.CLASS_NAME, "container")[2].text
-        m = m.split("\n")
-    except:
-        pass
+            if each_main_details[each] == "Status" :
+                instance = each + 1
+                status = each_main_details[instance]
 
-    try:
-        status = m[0]
+            if each_main_details[each] == "Floors" :
+                instance = each + 1
+                print("floors = ", each_main_details[instance])
     except:
         status = None
     try:
-        name = m[1].split(",")[0]
-    except:
-        name = None
-    try:
-        location = m[1].split(",")[1]
-    except:
-        location = None
-
-    try:
-        img = driver.find_elements(By.TAG_NAME, "img")
-        for i in img:
-            image = i.get_attribute("src")
-            if "jpg" in image and image != "https://assets.bayut.com/content/Dubai_Transactions_my_Bayut_desktop_EN_2ec3b1edfd_4a056a94b2_50773e1f3d.jpg?w=3840":
-                requests.get(f"http://127.0.0.1:8000/building?link={link}&img={image}") # img and link
-                pass
+        pose = driver.find_element(By.ID, "location-guide-blueprint-legacy-guide-section").find_element(By.CLASS_NAME, "ps-indent").text
+        pose = pose.split("\n")[1:]
+        about = ""
+        for i in range(2, len(pose), 3):
+            about += pose[i] + " "
+        requests.get(f"http://127.0.0.1:8000/building?link={link}&status={status}&name={name}&location={location}&about={about}")
     except:
         pass
 
-    try:
-        about = driver.find_elements(By.CLASS_NAME, "markdown-elements")[1].text
-    except:
-        about = None
-  
-    try:
-        nutshells = driver.find_elements(By.CLASS_NAME, "markdown-elements")[3].text
-        for nutshell in nutshells.split("\n"):
-            nutshell = nutshell.split(":") # nutshell key and value
-            key = nutshell[0]
-            value = nutshell[1]
-            requests.get(f"http://127.0.0.1:8000/building?link={link}&key={key}&value={value}")
-    except:
-        pass
-    
-
-    requests.get(f"http://127.0.0.1:8000/building?link={link}&status={status}&name={building_name_db}&location={location}&about={about}")
+# for i in data: 
+#     if i[8] == 0 and i[0] >= 1453:
+#         if i[4] == 3 or i[4] == 4 or i[4] == 5 :
+#             print(i[0])
+#             driver.get("https://propsearch.ae/")
+#             input = driver.find_element(By.XPATH, "//*[@title='Search all of Dubai real estate']").click()
+#             time.sleep(1)
+#             input = driver.find_element(By.XPATH, "//*[@placeholder='Search anything']")
+#             input.send_keys(f"{i[1]}")
+#             time.sleep(2)
+#             input.send_keys(Keys.ENTER)
+#             time.sleep(3)
+#             if driver.current_url != "https://propsearch.ae/":
+#                 get_detail(i[1], i[9])
 
 
-
-
-def get_building_link(building_name_db):
-    try:
-        all_guide_link = driver.find_element(By.XPATH, "//*[@aria-label='Guide links']")
-        building_name = driver.find_element(By.XPATH, "//*[@aria-label='Filter label']")
-        building_link = all_guide_link.find_element(By.XPATH, f"//*[@title='{building_name.text}']").get_attribute("href")
-        get_each_building_detail(building_link, building_name_db)
-    except:
-        pass
-
-    
-for i in data: 
-    if i[6] == None and i[0]<1001:
+for i in data:
+    if i[6] != "" and i[7] == "" and i[8] == 1:
         print(i[0])
-        driver.get("https://www.bayut.com/")
-        time.sleep(5)
-        input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
-        input.send_keys(f"{i[1]}")
-        time.sleep(2)
-        input.send_keys(Keys.SPACE)
-        time.sleep(5)
-        input.send_keys(Keys.ENTER)
-        time.sleep(3)
-        driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
-        time.sleep(5)
-        if driver.current_url == "https://www.bayut.com/for-sale/property/uae/":
-            driver.get("https://www.bayut.com/")
-            input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
-            input.send_keys(f"{i[1]}")
-            time.sleep(5)
-            input.send_keys(Keys.ENTER)
-            time.sleep(3)
-            driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
-            time.sleep(5)
-            a = driver.find_element(By.XPATH, "//*[@aria-label='Listing']").find_element(By.XPATH, "//*[@aria-label='Location']")
-            if driver.current_url == "https://www.bayut.com/for-sale/property/uae/":
-                pass
-            else:
-                get_building_link(i[1])
-        else:
-            get_building_link(i[1])
+        print(i[6])
+        driver.get(i[6])
+        if driver.current_url != "https://propsearch.ae/":
+            get_detail(i[1], i[9])
