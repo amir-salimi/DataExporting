@@ -6,7 +6,7 @@ from django.db.models import Q, F
 from django.http import HttpRequest, HttpResponse
 from django.views.generic import DetailView, CreateView
 
-from .models import City, Area, Community, Part, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto
+from .models import City, Area, Community, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto
 from .filter import ProductFilter
 
 def edit_svg(svg):
@@ -31,7 +31,7 @@ class CityProperties(DetailView):
         if part and community and area and city is not None:
             area, area_created = Area.objects.get_or_create(city=city, name=area, source=source)
             community, community_created = Community.objects.get_or_create(name=community, area=area, city=city, source=source)
-            part, part_created = Part.objects.get_or_create(community=community, name=part, source=source, area=area, city=city)
+            part, part_created = Building.objects.get_or_create(community=community, name=part, source=source, area=area, city=city)
         return HttpResponse("ok")
     
 
@@ -74,7 +74,7 @@ class BuildingSet(CreateView):
 
         if link and name and location and about:
 
-            buildings = Part.objects.filter(name__iexact=name)
+            buildings = Building.objects.filter(name__iexact=name)
             print(buildings)
             for building in buildings:
                 building.building_link = link

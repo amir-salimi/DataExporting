@@ -74,7 +74,7 @@ class BuildingHighlight(models.Model):
         verbose_name_plural = 'Building Highlights'
 
 
-class Part(models.Model):
+class Building(models.Model):
     city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING, null=True, blank=True)
     area = models.ForeignKey(to=Area, on_delete=models.DO_NOTHING, null=True, blank=True)
     community = models.ForeignKey(to=Community, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -93,33 +93,10 @@ class Part(models.Model):
     
     def __str__(self) -> str:
         return self.name
-
-
-class Building(models.Model):
-    name = models.CharField(max_length=64)
-    building_link = models.CharField(max_length=128)
-    status = models.CharField(max_length=64)
-    location = models.CharField(max_length=64)
-    about = models.TextField()
-    details = models.ManyToManyField(BuildingDetail)
-    img_link = models.ManyToManyField(BuildingImg)
-    highlight = models.ManyToManyField(BuildingHighlight)
-    
-    is_ok = models.SmallIntegerField(default=0)
-
-    city = models.CharField(max_length=64, null=True, blank=True)
-    area = models.CharField(max_length=64, null=True, blank=True)
-    community = models.CharField(max_length=64, null=True, blank=True)
-    part = models.CharField(max_length=64, null=True, blank=True)
-
-    def __str__(self) -> str:
-        return self.name
     
     class Meta:
         db_table = "buildings"
         verbose_name_plural = 'Buildings'
-
-
 
 
 
