@@ -73,6 +73,7 @@ class BuildingHighlight(models.Model):
         db_table = "building_highlights"
         verbose_name_plural = 'Building Highlights'
 
+from django.utils.timezone import now
 
 class Building(models.Model):
     city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -91,6 +92,8 @@ class Building(models.Model):
     
     is_ok = models.SmallIntegerField(default=0, null=True, blank=True)
     
+    created_time = models.DateTimeField(default=now)
+
     def __str__(self) -> str:
         return self.name
     

@@ -1,6 +1,7 @@
 from typing import Any
 import requests 
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.db.models import Q, F
 from django.http import HttpRequest, HttpResponse
@@ -60,8 +61,9 @@ class BuildingSet(CreateView):
         key = request.GET.get("key", None)
         value = request.GET.get("value", None)
         status = request.GET.get("status", None)
-        location = request.GET.get("location", None)
+        area = request.GET.get("location", None)
         about = request.GET.get("about", None)
+        city = request.GET.get("city", None)
 
         if link and highlight:
             BuildingHighlight.objects.get_or_create(building_link=link, highlight=highlight)
@@ -72,35 +74,33 @@ class BuildingSet(CreateView):
         if link and key and value:
             BuildingDetail.objects.get_or_create(building_link=link, key=key, value=value)
 
-        if link and name and location and about:
+        if link and name and area and about:
+            
+            City.objects.get_or_create(name=city)
 
-            buildings = Building.objects.filter(name__iexact=name)
-            print(buildings)
-            for building in buildings:
-                building.building_link = link
-                building.status = status
-                building.location = location
-                building.about = about
-                building.is_ok = 1
+            # if location was same with city we check that in this line 
+            try: 
+                building_city = City.objects.filter(name__iexact=area).get()
+                building = Building.objects.create(name=name, building_link=link, status=status, location=area, about=about, city=building_city)    
+            except ObjectDoesNotExist:
+                building_city, building_city_created = City.objects.get_or_create(name=city)
+                building_area, building_area_created = Area.objects.get_or_create(name=area, city=building_city)
+                building = Building.objects.create(name=name, building_link=link, status=status, location=area, about=about, area=building_area, city=building_city)    
+
+            
+            highlights = BuildingHighlight.objects.filter(building_link=link)
+            buildingImgs = BuildingImg.objects.filter(building_link=link)
+            details = BuildingDetail.objects.filter(building_link=link)
+
+            for highlight in highlights:
+                building.highlight.add(highlight)
                 building.save()
-
-
-            # highlights = BuildingHighlight.objects.filter(building_link=link)
-            # buildingImgs = BuildingImg.objects.filter(building_link=link)
-            # details = BuildingDetail.objects.filter(building_link=link)
-
-            # building, building_created = Building.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)    
-            # building, building_created = Part.objects.get_or_create(name=name, building_link=link, status=status, location=location, about=about)
-
-            # for highlight in highlights:
-            #     building.highlight.add(highlight)
-            #     building.save()
-            # for img in buildingImgs:
-            #     building.img_link.add(img)
-            #     building.save()
-            # for detail in details:
-            #     building.details.add(detail)
-            #     building.save()
+            for img in buildingImgs:
+                building.img_link.add(img)
+                building.save()
+            for detail in details:
+                building.details.add(detail)
+                building.save()
             
 
         return HttpResponse("ok")
@@ -168,7 +168,6 @@ class BuildingUnit(CreateView):
                 for d in details:
                     unit.detail.add(d)
                     unit.save()
-
                 building.city = city
                 building.area = area
                 building.community = community
