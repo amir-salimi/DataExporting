@@ -81,11 +81,11 @@ class BuildingSet(CreateView):
             # if location was same with city we check that in this line 
             try: 
                 building_city = City.objects.filter(name__iexact=area).get()
-                building = Building.objects.create(name=name, building_link=link, status=status, location=area, about=about, city=building_city)    
+                building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, city=building_city)    
             except ObjectDoesNotExist:
-                building_city, building_city_created = City.objects.get_or_create(name=city)
-                building_area, building_area_created = Area.objects.get_or_create(name=area, city=building_city)
-                building = Building.objects.create(name=name, building_link=link, status=status, location=area, about=about, area=building_area, city=building_city)    
+                building_city, building_city_created = City.objects.get_or_create(name=str(city).lower())
+                building_area, building_area_created = Area.objects.get_or_create(name=str(area), city=building_city)
+                building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, area=building_area, city=building_city)    
 
             
             highlights = BuildingHighlight.objects.filter(building_link=link)
