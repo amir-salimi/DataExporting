@@ -6,16 +6,20 @@ from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 
-
 from subprocess import call
+import os
+
+sentry_path = os.getcwd()+"/../sentry_tool/"
+
+from sentry_tool.sentry_confiuration import configuration
+
+configuration()
 
 import time
 import requests
-import os
 import sqlite3
 
 import pandas as pd
-
 
 def chrome_webdriver():
     chromedriver_path = os.getcwd()+"/chromedriver"
@@ -33,7 +37,7 @@ driver = chrome_webdriver()
 
 connection = sqlite3.connect("/home/amir/Documents/export_data/core/db.sqlite3")
 cursor = connection.cursor()
-cursor.execute("SELECT * FROM area_building")
+cursor.execute("SELECT * FROM buildings")
 
 data = cursor.fetchall()
 
