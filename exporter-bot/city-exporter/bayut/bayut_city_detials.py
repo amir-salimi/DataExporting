@@ -12,6 +12,10 @@ import os
 
 import pandas as pd
 
+from sentry_tool.sentry_confiuration import configuration
+
+configuration("https://48b901e268fd490dd37803bd38674eea@o4507526316883968.ingest.us.sentry.io/4507582717820928")
+
 
 def chrome_webdriver():
     chromedriver_path = os.getcwd()+"/chromedriver"
@@ -36,7 +40,7 @@ def get_properties(url, drop_down):
     except TimeoutException:
         get_properties(url=url, drop_down=drop_down)
     try:
-        driver.find_elements(By.CLASS_NAME, "_44977ec6")[1].click() # click for view more
+        driver.find_elements(By.CLASS_NAME, "")[1].click() # click for view more
     except:
         pass
     try:
@@ -68,16 +72,17 @@ if prop_list is not None:
                 community_list = get_prop_list(area_link, drop_down=False) # get community and save text and link of them to a list
                 if community_list is not None: # we have 3 category and subcategory
                     for community in community_list:
-                        part_list = get_prop_list(url=community[1], drop_down=False) # get part and save text and link of them to a list
-                        if part_list is not None: # we have 4 category and subcategory
-                            for part in part_list:
-                                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&part={part[0]}&source=https://www.bayut.com/")
+                        building_list = get_prop_list(url=community[1], drop_down=False) # get building and save text and link of them to a list the first index is name and second index is link of that
+                        if building_list is not None: # we have 4 category and subcategory
+                            for building in building_list:
+                                subnet_list = get_prop_list(url=building[1], drop_down=False) # get all apartment in a complex and save text and link of them to a list the first index is name and second index is link of that
+                                if subnet_list is not None:
+                                    for subnet in subnet_list:
+                                        requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&building={building[0]}&subnet={subnet[0]}&source=https://www.bayut.com/")
+                                requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&community={community[0]}&building={building[0]}&source=https://www.bayut.com/")
                         else:
-                            requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&part={community[0]}&source=https://www.bayut.com/")
+                            requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&building={community[0]}&source=https://www.bayut.com/")
                 else:
-                    requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&part={area[0]}&source=https://www.bayut.com/")
+                    requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&building={area[0]}&source=https://www.bayut.com/")
 driver.close()
-
-
-
 

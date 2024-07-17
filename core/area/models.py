@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now
 from django.core.validators import MinValueValidator
 
 
@@ -73,7 +74,6 @@ class BuildingHighlight(models.Model):
         db_table = "building_highlights"
         verbose_name_plural = 'Building Highlights'
 
-from django.utils.timezone import now
 
 class Building(models.Model):
     city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -89,8 +89,8 @@ class Building(models.Model):
     details = models.ManyToManyField(BuildingDetail, null=True, blank=True)
     img_link = models.ManyToManyField(BuildingImg, null=True, blank=True)
     highlight = models.ManyToManyField(BuildingHighlight, null=True, blank=True)
-    
-    is_ok = models.SmallIntegerField(default=0, null=True, blank=True)
+
+    publish_status = models.BooleanField(default=False, null=True, blank=True)
     
     created_time = models.DateTimeField(default=now)
 
@@ -102,7 +102,27 @@ class Building(models.Model):
         verbose_name_plural = 'Buildings'
 
 
+class Complex(models.Model):
+    name = models.CharField(max_length=64)
 
+    city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING, null=True, blank=True)
+    area = models.ForeignKey(to=Area, on_delete=models.DO_NOTHING, null=True, blank=True)
+    community = models.ForeignKey(to=Community, on_delete=models.DO_NOTHING, null=True, blank=True)
+
+    buildings = models.ManyToManyField(Building)
+
+    publish_status = models.BooleanField(default=False, null=True, blank=True)
+    created_time = models.DateTimeField(default=now)
+
+    source = models.CharField(max_length=128, default=None, null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.name
+    
+    class Meta:
+        db_table = "complexs"
+        verbose_name_plural = 'Complexs'
+        
 #---------------------------------------------------------------------------------------------------------
 
 

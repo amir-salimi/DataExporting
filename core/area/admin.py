@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import City, Area, Community, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto
+from .models import City, Area, Community, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto, Complex
 
 
 class SearchCommunity(admin.ModelAdmin):
@@ -28,3 +28,4 @@ admin.site.register(BuildingHighlight)
 admin.site.register(UnitPhoto)
 admin.site.register(UnitDetail)
 admin.site.register(UnitOfBuilding)
+admin.site.register(Complex)

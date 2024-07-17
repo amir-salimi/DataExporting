@@ -1,13 +1,14 @@
-from typing import Any
 import requests 
+from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
+
 from django.shortcuts import render
 from django.db.models import Q, F
 from django.http import HttpRequest, HttpResponse
 from django.views.generic import DetailView, CreateView
 
-from .models import City, Area, Community, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto
+from .models import City, Area, Community, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto, Complex
 from .filter import ProductFilter
 
 def edit_svg(svg):
@@ -24,15 +25,39 @@ class CityProperties(DetailView):
         city = request.GET.get("city", None)
         area = request.GET.get("area", None) 
         community = request.GET.get("community", None) 
-        part = request.GET.get("part", None) 
+        building_name = request.GET.get("building", None) 
         source = request.GET.get("source", None) 
+        subnet = request.GET.get("subnet", None)
 
-        city, city_created = City.objects.get_or_create(name=city, source=source)
+        city, city_created = City.objects.get_or_create(name=str(city).lower(), source=source)
 
-        if part and community and area and city is not None:
-            area, area_created = Area.objects.get_or_create(city=city, name=area, source=source)
-            community, community_created = Community.objects.get_or_create(name=community, area=area, city=city, source=source)
-            part, part_created = Building.objects.get_or_create(community=community, name=part, source=source, area=area, city=city)
+        if building_name and community and area and city is not None:
+            area, area_created = Area.objects.get_or_create(city=city, name=str(area).lower(), source=source)
+            community, community_created = Community.objects.get_or_create(name=str(community).lower(), area=area, city=city, source=source)
+
+            if subnet is None: # if the building is not in a complex 
+                building = Building.objects.create(community=community, name=str(building_name).lower(), source=source, area=area, city=city)
+
+            else: # if the building is in a complex 
+                complex, complex_created = Complex.objects.get_or_create(name=str(building_name), source=source)
+                building = Building.objects.create(community=community, name=str(subnet).lower(), source=source, area=area, city=city)
+                complex.area = area
+                complex.city = city
+                complex.community = community
+                complex.created_time = datetime.now()
+                complex.save()
+                complex.buildings.add(building)
+                
+
+        if building_name and area and city is not None:
+            if community == None:
+                area, area_created = Area.objects.get_or_create(city=city, name=str(area).lower(), source=source)
+                building = Building.objects.create(name=str(building_name).lower(), source=source, area=area, city=city)
+        
+        if building_name and city is not None:
+            if community and area is None:
+                building = Building.objects.create(name=str(building_name).lower(), source=source, city=city)
+
         return HttpResponse("ok")
     
 
@@ -176,5 +201,4 @@ class BuildingUnit(CreateView):
 
 
         return HttpResponse()
-
 
