@@ -100,7 +100,7 @@ def get_each_building_detail(link):
             pass
         
 
-        requests.get(f"http://127.0.0.1:8000/building?link={link}&status={status}&name={name}&location={location}&about={about}&city={CITY_NAME}")
+        requests.get(f"http://127.0.0.1:8000/building?link={link}&status={status}&name={name}&location={location}&about={about}&city={CITY_NAME}&source=https://www.bayut.com/")
 
 
 def get_each_area_buildings(link, main_page):
