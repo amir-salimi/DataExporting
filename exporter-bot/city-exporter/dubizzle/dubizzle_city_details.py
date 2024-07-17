@@ -87,5 +87,5 @@ if prop_list is not None:
                             requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&building={community[0]}&source=https://uae.dubizzle.com")
                 else:
                     requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&building={area[0]}&source=https://uae.dubizzle.com")
-driver.close()
+driver.close()  
 

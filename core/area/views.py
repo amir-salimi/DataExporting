@@ -1,3 +1,4 @@
+from typing import Any
 import requests 
 from datetime import datetime
 
@@ -28,15 +29,16 @@ class CityProperties(DetailView):
         building_name = request.GET.get("building", None) 
         source = request.GET.get("source", None) 
         subnet = request.GET.get("subnet", None)
+        about = request.GET.get("about", None)
 
-        city, city_created = City.objects.get_or_create(name=str(city).lower(), source=source)
+        city, city_created = City.objects.get_or_create(name=str(city).lower())
 
         if building_name and community and area and city is not None:
             area, area_created = Area.objects.get_or_create(city=city, name=str(area).lower(), source=source)
             community, community_created = Community.objects.get_or_create(name=str(community).lower(), area=area, city=city, source=source)
 
             if subnet is None: # if the building is not in a complex 
-                building = Building.objects.create(community=community, name=str(building_name).lower(), source=source, area=area, city=city)
+                building = Building.objects.create(community=community, name=str(building_name).lower(), source=source, area=area, city=city, about=None)
 
             else: # if the building is in a complex 
                 complex, complex_created = Complex.objects.get_or_create(name=str(building_name), source=source)
@@ -99,18 +101,21 @@ class BuildingSet(CreateView):
         if link and key and value:
             BuildingDetail.objects.get_or_create(building_link=link, key=key, value=value)
 
+        if about == "None":
+            about = None
+
         if link and name and area and about:
             
-            City.objects.get_or_create(name=city)
+            City.objects.get_or_create(name=str(city).lower())
 
             # if location was same with city we check that in this line 
             try: 
                 building_city = City.objects.filter(name__iexact=area).get()
-                building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, city=building_city)    
+                building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, city=building_city, publish_status=1)    
             except ObjectDoesNotExist:
                 building_city, building_city_created = City.objects.get_or_create(name=str(city).lower())
                 building_area, building_area_created = Area.objects.get_or_create(name=str(area), city=building_city)
-                building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, area=building_area, city=building_city)    
+                building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, area=building_area, city=building_city, publish_status=1)    
 
             
             highlights = BuildingHighlight.objects.filter(building_link=link)
@@ -202,3 +207,20 @@ class BuildingUnit(CreateView):
 
         return HttpResponse()
 
+
+class CompliteBuilding(DetailView):
+    def get(self, request):
+        not_complite_buildings = Building.objects.filter(Q(building_link=None) or Q(building_link=" "))
+        for not_complite_building in not_complite_buildings:
+            complite_building = Building.objects.filter(Q(name=not_complite_building.name) & Q(publish_status=1)).first()
+            if complite_building != None:
+                not_complite_building.building_link = complite_building.building_link
+                not_complite_building.status = complite_building.status
+                not_complite_building.location = complite_building.location
+                not_complite_building.about = complite_building.about
+                not_complite_building.created_time = datetime.now()
+                not_complite_building.publish_status = 2
+                not_complite_building.save()
+                complite_building.delete()
+                
+        return HttpResponse("ok")

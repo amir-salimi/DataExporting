@@ -5,7 +5,6 @@ from django.core.validators import MinValueValidator
 
 class City(models.Model):
     name = models.CharField(max_length=64)
-    source = models.CharField(max_length=128)
 
     def __str__(self) -> str:
         return self.name
@@ -76,6 +75,16 @@ class BuildingHighlight(models.Model):
 
 
 class Building(models.Model):
+    must_be_check = 2
+    publish = 1
+    draft = 0
+
+    PUBLISH_STATUS = (
+        (publish, "Publish"),
+        (draft, "Draft"),
+        (must_be_check, "Must Be Check"),
+    )
+
     city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING, null=True, blank=True)
     area = models.ForeignKey(to=Area, on_delete=models.DO_NOTHING, null=True, blank=True)
     community = models.ForeignKey(to=Community, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -85,12 +94,12 @@ class Building(models.Model):
     building_link = models.CharField(max_length=128, null=True, blank=True)
     status = models.CharField(max_length=64, null=True, blank=True)
     location = models.CharField(max_length=64, null=True, blank=True)
-    about = models.TextField(null=True, blank=True)
+    about = models.TextField(default=None, null=True, blank=True)
     details = models.ManyToManyField(BuildingDetail, null=True, blank=True)
     img_link = models.ManyToManyField(BuildingImg, null=True, blank=True)
     highlight = models.ManyToManyField(BuildingHighlight, null=True, blank=True)
 
-    publish_status = models.BooleanField(default=False, null=True, blank=True)
+    publish_status = models.PositiveSmallIntegerField(choices=PUBLISH_STATUS, default=0)
     
     created_time = models.DateTimeField(default=now)
 
