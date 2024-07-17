@@ -208,7 +208,7 @@ class BuildingUnit(CreateView):
         return HttpResponse()
 
 
-class CompliteBuilding(DetailView):
+class MergDuplicateBuilding(DetailView):
     def get(self, request):
         not_complite_buildings = Building.objects.filter(Q(building_link=None) or Q(building_link=" "))
         for not_complite_building in not_complite_buildings:
@@ -224,3 +224,6 @@ class CompliteBuilding(DetailView):
                 complite_building.delete()
                 
         return HttpResponse("ok")
+    
+
+# class UpdateBuilding
