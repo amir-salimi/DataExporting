@@ -5,39 +5,58 @@ import sqlite3
 header = [
 "id",
 "name",
+"source",
+"city",
+"area",
+"community",
 "link",
 "status",
 "location",
 "about",
-"details",
 "images",
 "highlights",
 ]
 
-connection = sqlite3.connect("/home/amir/Documents/export_data/core/db.sqlite3")
+connection = sqlite3.connect("/home/amir/Desktop/db.sqlite3")
 cursor = connection.cursor()
-cursor.execute("SELECT * FROM area_building")
+cursor.execute("SELECT * FROM buildings")
 
 data = cursor.fetchall()
 
 
+def get_community(id):
+    cursor.execute(f"SELECT * FROM communities where id={id}")
+    community = cursor.fetchall()
+    return community
+
+def get_area(id):
+    cursor.execute(f"SELECT * FROM areas where id={id}")
+    area = cursor.fetchall()
+    return area
+
+def get_city(id):
+    cursor.execute(f"SELECT * FROM cities where id={id}")
+    city = cursor.fetchall()
+    return city
+
+
 
 def get_detail(link):
-    cursor.execute(f"SELECT * FROM area_detail WHERE link LIKE '%{link}%'")
+    cursor.execute(f"SELECT * FROM building_details_info WHERE building_link LIKE '%{link}%'")
     about = cursor.fetchall()
     return about
 
 
 def get_photo(link):
-    cursor.execute(f"SELECT * FROM area_buildingimg WHERE link LIKE '%{link}%'")
+    cursor.execute(f"SELECT * FROM building_images WHERE building_link LIKE '%{link}%'")
     photo = cursor.fetchall()
     return photo
 
 
 def get_highlight(link):
-    cursor.execute(f"SELECT * FROM area_highlight WHERE link LIKE '%{link}%'")
-    photo = cursor.fetchall()
-    return photo
+    cursor.execute(f"SELECT * FROM building_highlights WHERE building_link LIKE '%{link}%'")
+    hightlights = cursor.fetchall()
+    return hightlights
 
 
 data_list = []
@@ -45,12 +64,23 @@ data_list = []
 # print(get_photo('https://opr.ae/projects/emaar-anya-2-townhouses-in-arabian-ranches-3-dubai'))
 
 for i in data:
-    id = i[0]
+    # break
+    building_id = i[0]
     name = i[1] 
-    link = i[2]
-    status = i[3]
-    location = i[4]
-    about = i[5]
+    source = i[2]
+    area = get_area(i[3])[0][1]
+    city = get_city(i[4])[0][1]
+    print(city)
+    if i[5] != None:
+        community = get_community(i[5])[0][1]
+    else:
+        community = None
+
+    link = i[6]
+    about = i[7]
+    location = i[9]
+    status = i[10]
+    
 
     details = get_detail(link)
     detail_list = []
@@ -68,15 +98,15 @@ for i in data:
     for h in highlights:
         highlights_list.append(h[2])
 
-    if name != None :
-        if status == "Ready" or status == "off-paln":
-            data_list.append([id,name,link, status, location, about, detail_list, image_list, highlights_list])
+    data_list.append([building_id, name, source, city, area, community, link, status, location, about, image_list, highlights_list])
     
 
-file = "/home/amir/Documents/export_data/exporter-bot/data-formater/buildings/main-buildings.csv"
+file = "/home/amir/Documents/export_data/exporter-bot/data-formater/buildings/main.csv"
 
 
 with open(file, 'w', newline="") as f:
     csvwriter = csv.writer(f) # 2. create a csvwriter object
     csvwriter.writerow(header) # 4. write the header
     csvwriter.writerows(data_list) # 5. write the rest of the data
+
+    
