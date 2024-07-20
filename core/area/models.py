@@ -112,6 +112,16 @@ class Building(models.Model):
 
 
 class Complex(models.Model):
+    must_be_check = 2
+    publish = 1
+    draft = 0
+
+    PUBLISH_STATUS = (
+        (publish, "Publish"),
+        (draft, "Draft"),
+        (must_be_check, "Must Be Check"),
+    )
+
     name = models.CharField(max_length=64)
 
     city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -120,7 +130,7 @@ class Complex(models.Model):
 
     buildings = models.ManyToManyField(Building)
 
-    publish_status = models.BooleanField(default=False, null=True, blank=True)
+    publish_status = models.PositiveSmallIntegerField(choices=PUBLISH_STATUS, default=draft)
     created_time = models.DateTimeField(default=now)
 
     source = models.CharField(max_length=128, default=None, null=True, blank=True)

@@ -1,13 +1,12 @@
-from typing import Any
 import requests 
+
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
-
 from django.shortcuts import render
 from django.db.models import Q, F
 from django.http import HttpRequest, HttpResponse
-from django.views.generic import DetailView, CreateView
+from django.views.generic import DetailView, CreateView, UpdateView
 
 from .models import City, Area, Community, Building, BuildingDetail, BuildingImg, BuildingHighlight, UnitDetail, UnitOfBuilding, UnitPhoto, Complex
 from .filter import ProductFilter
@@ -91,7 +90,15 @@ class BuildingSet(CreateView):
         area = request.GET.get("location", None)
         about = request.GET.get("about", None)
         city = request.GET.get("city", None)
+        complex_name = request.GET.get("complex_name", None)
+        publish_status = request.GET.get("publish_status", None)
 
+        if complex_name and publish_status is not None:
+            complexs = Complex.objects.filter(name__iexact=complex_name)
+            for c in complexs:
+                c.publish_status = 1
+                c.save()
+                
         if link and highlight:
             BuildingHighlight.objects.get_or_create(building_link=link, highlight=highlight)
         
@@ -105,19 +112,21 @@ class BuildingSet(CreateView):
             about = None
 
         if link and name and area and about:
-            
             City.objects.get_or_create(name=str(city).lower())
-
             # if location was same with city we check that in this line 
             try: 
                 building_city = City.objects.filter(name__iexact=area).get()
                 building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, city=building_city, publish_status=1)    
+
             except ObjectDoesNotExist:
                 building_city, building_city_created = City.objects.get_or_create(name=str(city).lower())
                 building_area, building_area_created = Area.objects.get_or_create(name=str(area), city=building_city)
                 building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, area=building_area, city=building_city, publish_status=1)    
 
-            
+            if complex_name is not None:
+                complex = Complex.objects.filter(name__iexact=complex_name).first()
+                complex.buildings.add(building)
+
             highlights = BuildingHighlight.objects.filter(building_link=link)
             buildingImgs = BuildingImg.objects.filter(building_link=link)
             details = BuildingDetail.objects.filter(building_link=link)
@@ -143,9 +152,7 @@ class BuildingUnit(CreateView):
         value = request.GET.get("value", None)
         img = request.GET.get("img", None)
         ok = request.GET.get("is_ok", None)
-
         building_name = request.GET.get("building_name", None)
-
         community = request.GET.get("community", None)
         area = request.GET.get("area", None)
         city = request.GET.get("city", None)
@@ -154,18 +161,15 @@ class BuildingUnit(CreateView):
         price = request.GET.get("price", None)
         unit_area = request.GET.get("unit_area", None)
         description = request.GET.get("description", None)
-
         building_link = request.GET.get("building_link", None)
         
         if building_link or building_name:
             if ok :
                 building = ProductFilter(building_name, Building.objects.all()).data
-                
                 if building:
                     building = Building.objects.filter(Q(name__iexact=building) | Q(building_link=building_link)).first()
                 else:
                     building = Building.objects.filter(Q(name__iexact=building_name) | Q(building_link=building_link)).first()
-
                 building.is_ok=1
                 building.save()
 
@@ -175,19 +179,15 @@ class BuildingUnit(CreateView):
         if link and img:
             UnitPhoto.objects.get_or_create(building_link=link, img_link=img)
 
-
         if building_name or building_link:
             if price and bath and bed and link:
                 building = ProductFilter(building_name, Building.objects.all()).data
-
                 if building:
                     building = Building.objects.filter(Q(name__iexact=building) | Q(building_link=building_link)).first()
                 else:
                     building = Building.objects.filter(Q(name__iexact=building_name) | Q(building_link=building_link)).first()
 
-                
                 unit, unit_created = UnitOfBuilding.objects.get_or_create(building_link=link, building_name=building, bed=bed, bath=bath, area=unit_area, desc=description)
-
                 photos = UnitPhoto.objects.filter(building_link=link)
                 details = UnitDetail.objects.filter(building_link=link)
             
@@ -198,13 +198,11 @@ class BuildingUnit(CreateView):
                 for d in details:
                     unit.detail.add(d)
                     unit.save()
+
                 building.city = city
                 building.area = area
                 building.community = community
                 building.save()
-
-
-
         return HttpResponse()
 
 
@@ -226,4 +224,25 @@ class MergDuplicateBuilding(DetailView):
         return HttpResponse("ok")
     
 
-# class UpdateBuilding
+class UpdateBuildings(UpdateView):
+    def get(self, request):
+        link = request.GET.get("link", None)
+        status = request.GET.get("status", None)
+        name = request.GET.get("name", None)
+        location = request.GET.get("location", None)
+        about = request.GET.get("about", None)
+        source = request.GET.get("source", None)
+        
+        if link and name and location and about:
+            select_buildings = Building.objects.filter(name__iexact=name)
+            for select_building in select_buildings:
+                select_building.about = about
+                select_building.status = status
+                select_building.location = location
+                select_building.building_link = link
+                select_building.created_time = datetime.now()
+                select_building.publish_status = 1
+                select_building.source = source
+                select_building.save()
+
+        return HttpResponse("ok")
