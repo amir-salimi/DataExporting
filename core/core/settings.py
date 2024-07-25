@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'area',
     'django_filters',
+    'RealEstate',
+    'Building',
+    'Unit',
 ]
 
 MIDDLEWARE = [
