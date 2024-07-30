@@ -11,8 +11,10 @@ from django.http import HttpResponse
 
 from .models import Product, AnswerAndQuestion, About, ProductPhoto, ProductPlanMap, Category, Status
 
+
 class HttpResponseOk(HttpResponse):
     status_code = 200
+
 
 def clean_data(data):
     data = data.replace("W", "")
@@ -23,7 +25,6 @@ def clean_data(data):
     data = data.replace("AED", "")
     return data
         
-
 
 class EasyMapScraping(DetailView):
     def get(self, request):
@@ -78,7 +79,6 @@ class EasyMapScraping(DetailView):
                 pass        
         
         return HttpResponseOk()
-
 
 
 class OprScrapingData(DetailView):
@@ -147,7 +147,6 @@ class OprScrapingData(DetailView):
             except:
                 pass
         return HttpResponseOk()
-
 
 
 class DxbScrapingData(DetailView):

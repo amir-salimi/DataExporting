@@ -1,17 +1,18 @@
-# from django.shortcuts import render
-# from django.utils.timezone import now
 from django.http import HttpResponse
 from django.db.models import Q
 from django.views.generic import CreateView
 from django.core.exceptions import ObjectDoesNotExist
 
+from Building.models import Building
+from RealEstate.models import Agent
 
 from . models import UnitDetail, UnitOfBuilding, UnitPhoto
-from Building.models import Building
 from .filter import ProductFilter
+
 
 class HttpResponseOk(HttpResponse):
     status_code = 200
+
 
 class BuildingUnit(CreateView):
     def get(self, request):
@@ -32,6 +33,8 @@ class BuildingUnit(CreateView):
         building_link = request.GET.get("building_link", None)
         complex_name = request.GET.get("complex_name", None)
         
+        agent_bio_link = request.GET.get("agent_link", None)
+
         if building_link or building_name:
             if ok :
                 building = ProductFilter(building_name, Building.objects.all()).data
@@ -57,7 +60,11 @@ class BuildingUnit(CreateView):
                 except ObjectDoesNotExist:
                     complex = None
 
-                unit= UnitOfBuilding.objects.create(building_link=link, building_name=building, bed=bed, bath=bath, area=unit_area, desc=description, complex_name=complex)
+                agent = Agent.objects.filter(link=agent_bio_link).first()
+                unit = UnitOfBuilding.objects.create(building_name=building, agent = agent, building_link=link, bed=bed, bath=bath, area=unit_area, description=description, complex_name=complex)
+                
+                # unit.
+                # unit.save()
                 photos = UnitPhoto.objects.filter(building_link=link)
                 details = UnitDetail.objects.filter(building_link=link)
             
@@ -69,6 +76,6 @@ class BuildingUnit(CreateView):
                     unit.detail.add(d)
                     unit.save()
 
-        return HttpResponseOk
+        return HttpResponseOk()
 
 

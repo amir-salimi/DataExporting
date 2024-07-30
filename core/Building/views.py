@@ -8,8 +8,10 @@ from datetime import datetime
 from .models import Building, BuildingDetail, BuildingImg, BuildingHighlight, Complex
 from area.models import Area, Community, City
 
+
 class HttpResponseOk(HttpResponse):
     status_code = 200
+
 
 class BuildingSet(CreateView):
     def get(self, request):

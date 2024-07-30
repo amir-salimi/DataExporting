@@ -22,8 +22,9 @@ class UnitDetail(models.Model):
         db_table = "unit_detials"
         verbose_name_plural = 'Unit Details'
 
+
 class UnitOfBuilding(models.Model):
-    building_name = models.ForeignKey(Building, on_delete=models.CASCADE)
+    building_name = models.ForeignKey(Building, on_delete=models.DO_NOTHING)
     bed = models.CharField(max_length=32)
     bath = models.CharField(max_length=32)
     area = models.CharField(max_length=32)

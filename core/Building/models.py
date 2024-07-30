@@ -99,3 +99,5 @@ class Complex(models.Model):
     class Meta:
         db_table = "complexs"
         verbose_name_plural = 'Complexs'
+
+    

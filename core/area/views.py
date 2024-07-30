@@ -11,6 +11,7 @@ from django.views.generic import DetailView, CreateView
 from .models import City, Area, Community
 from Building.models import Building, Complex
 
+
 class HttpResponseOk(HttpResponse):
     status_code = 200
 

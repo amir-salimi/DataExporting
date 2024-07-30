@@ -14,7 +14,6 @@ class City(models.Model):
         verbose_name_plural = 'Cities'
     
 
-
 class Area(models.Model):
     city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=64)
