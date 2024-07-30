@@ -3,17 +3,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 
-from subprocess import call
 import os
-
-sentry_path = os.getcwd()+"/../sentry_tool/"
-
-from sentry_tool.sentry_confiuration import configuration
-
-configuration()
 
 import time
 import requests
@@ -32,78 +24,6 @@ def chrome_webdriver():
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
-driver = chrome_webdriver()
-
-
-connection = sqlite3.connect("/home/amir/Documents/export_data/core/db.sqlite3")
-cursor = connection.cursor()
-cursor.execute("SELECT * FROM buildings")
-
-data = cursor.fetchall()
-
-
-def get_each_building_detail(link, building_name):
-    driver.get(link)
-    try:
-        highlights = driver.find_element(By.CLASS_NAME, "markdown-elements").text
-        highlights = highlights.split("\n")
-        for h in highlights: # link and highlight
-            requests.get(f"http://127.0.0.1:8000/building?link={link}&highlight={h}")
-        # [print(h) for h in highlights] # link and highlight
-    except:
-        highlights = None
-
-    try:
-        m = driver.find_elements(By.CLASS_NAME, "container")[2].text
-        m = m.split("\n")
-    except:
-        pass
-
-    try:
-        status = m[0]
-    except:
-        status = None
-    try:
-        name = m[1].split(",")[0]
-    except:
-        name = None
-    try:
-        location = m[1].split(",")[1]
-    except:
-        location = None
-
-    try:
-        img = driver.find_elements(By.TAG_NAME, "img")
-        for i in img:
-            image = i.get_attribute("src")
-            if "jpg" in image and image != "https://assets.bayut.com/content/Dubai_Transactions_my_Bayut_desktop_EN_2ec3b1edfd_4a056a94b2_50773e1f3d.jpg?w=3840":
-                requests.get(f"http://127.0.0.1:8000/building?link={link}&img={image}") # img and link
-                pass
-    except:
-        pass
-
-    try:
-        about = driver.find_elements(By.CLASS_NAME, "markdown-elements")[1].text
-    except:
-        about = None
-
-    try:
-        nutshells = driver.find_elements(By.CLASS_NAME, "markdown-elements")[3].text
-        for nutshell in nutshells.split("\n"):
-            nutshell = nutshell.split(":") # nutshell key and value
-            key = nutshell[0]
-            value = nutshell[1]
-            requests.get(f"http://127.0.0.1:8000/building?link={link}&key={key}&value={value}")
-    except:
-        pass
-    
-    if name == None or name == "HIGHLIGHTS":
-        name = building_name
-    
-    requests.get(f"http://127.0.0.1:8000/building?link={link}&status={status}&name={name}&location={location}&about={about}")
-
-    return driver.current_url
-
 
 def is_ok(building):
     if building != None:
@@ -117,11 +37,88 @@ def is_ok(building):
 
 
 
+driver = chrome_webdriver()
+connection = sqlite3.connect("/home/amir/Documents/export_data/core/db.sqlite3")
+cursor = connection.cursor()
+cursor.execute("SELECT * FROM buildings")
+data = cursor.fetchall()
+
+
+def get_agency_bio(agency_bio_link):
+
+    driver.get(agency_bio_link)
+    try:
+        driver.find_element(By.XPATH, "//span[text()='See all areas']").click()
+    except:
+        pass
+    
+    try:
+        driver.find_element(By.XPATH, "//span[text()='Read all']").click()
+    except:
+        pass
+
+    agency_name = driver.find_element(By.XPATH, "//*[@aria-label='Agency name']").text
+    agency_details = driver.find_elements(By.XPATH, "//div[@dir='ltr']")
+
+    agency_img = driver.find_element(By.XPATH, f"//*[@aria-label='Agency logo']").get_attribute("src")
+    
+
+    driver.find_element(By.XPATH, "//*[@aria-label='Call']").click()
+    time.sleep(3)
+    agency_phone_number = driver.find_element(By.XPATH, "//*[@aria-label='Listing phone number']").text
+    
+    agency_details_list = []
+
+    for detail in agency_details:
+        agency_detail = detail.text
+        if "Read less" in agency_detail:
+            agency_detail = agency_detail.replace("Read less", "")
+        if "See less areas" in agency_detail:
+            agency_detail = agency_detail.replace("See less areas", "")
+        if "BRN" in agency_detail:
+            agency_detail = agency_detail.replace("\n", "")
+        agency_details_list.append(agency_detail)
+
+
+    requests.get(f"http://127.0.0.1:8000/agency/?name={agency_name}&link={agency_bio_link}&phone_number={agency_phone_number}&details={agency_details_list}&agency_photo={agency_img}")
+
+
+def get_agent_bio(agent_bio_link):
+    driver.get(agent_bio_link)
+
+    agency_name = driver.find_element(By.XPATH, "//*[@aria-label='Agency name']").text
+    agency_bio_link = driver.find_element(By.XPATH, "//*[@aria-label='Agency name']").find_element(By.TAG_NAME, "a").get_attribute("href")
+    get_agency_bio(agency_bio_link)
+
+    driver.get(agent_bio_link)
+
+    agent_name = driver.find_element(By.XPATH, "//*[@aria-label='Agent name']").text
+    agent_img = driver.find_element(By.XPATH, f"//*[@aria-label='Agent {agent_name}']").get_attribute("src")
+
+    driver.find_element(By.XPATH, "//span[text()='Read all']").click()
+    agent_details = driver.find_elements(By.XPATH, "//div[@dir='ltr']")
+
+    driver.find_element(By.XPATH, "//*[@aria-label='Call']").click()
+    time.sleep(3)
+    agent_phone_number = driver.find_element(By.XPATH, "//*[@aria-label='Listing phone number']").text
+    agent_details_list = []
+
+    for detail in agent_details:
+        agent_detail = detail.text
+        if "Read less" in agent_detail:
+            agent_detail = agent_detail.replace("Read less", "")
+        if "BRN" in agent_detail:
+            agent_detail = agent_detail.replace("\n", "")
+        agent_details_list.append(agent_detail)
+
+    requests.get(f"http://127.0.0.1:8000/agent/?name={agent_name}&link={agent_bio_link}&phone_number={agent_phone_number}&details={agent_details_list}&agent_photo={agent_img}&agency_link={agency_bio_link}")
+
+    return agent_bio_link
+    
 
 def get_each_prop_detail(all_link, building_name):
-    
     for link in all_link:
-        try:
+            complex = None
             driver.get(link)
             price = driver.find_element(By.XPATH, "//*[@aria-label='Price']").text
             location = driver.find_element(By.XPATH, "//*[@aria-label='Property header']").text
@@ -131,7 +128,17 @@ def get_each_prop_detail(all_link, building_name):
             desc = driver.find_element(By.XPATH, "//*[@aria-label='Property description']").text
             location = location.split(",")
 
-            if len(location) == 4:
+            agent_bio_link = driver.find_element(By.XPATH, "//*[@aria-label='Agent name']").get_attribute("href")
+    
+
+            if len(location) == 5:
+                name = location[0]
+                complex = location[1]
+                community = location[2]
+                area = location[3]
+                city = location[4]
+
+            elif len(location) == 4:
                 name = location[0]
                 community = location[1]
                 area = location[2]
@@ -148,7 +155,29 @@ def get_each_prop_detail(all_link, building_name):
                 area = None
                 city = None
                 community = None
-            
+                complex = None
+
+            if name != None:
+                if name[0] == " ":
+                    name = name[1:]
+            if complex != None:
+                
+                if complex[0] == " ":
+                    complex = complex[1:]
+
+            if community != None:
+                if community[0] == " ":
+                    community = community[1:]
+
+            if area != None:
+                if area[0] == " ":
+                    area = area[1:]
+
+            if city != None:
+                if city[0] == " ":
+                    city = city[1:]
+       
+
             prop_detials = driver.find_element(By.XPATH, "//*[@aria-label='Property details']").find_elements(By.TAG_NAME, "li")
 
             for prop_detail in prop_detials:
@@ -157,27 +186,6 @@ def get_each_prop_detail(all_link, building_name):
                 value = prop_detail[1]
                 requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&key={key}&value={value}")
 
-
-            try:
-                building_link_in_page = driver.find_element(By.XPATH, f"//*[@title='{name}']").get_attribute("href")
-
-                
-                curs = connection.cursor()
-                curs.execute(f"SELECT * FROM area_building WHERE link LIKE '%{building_link_in_page}%'")
-                building = curs.fetchall() 
-                
-                if building != []:
-                    main_building_name = building_name
-                    building_current_link = building[0][2]
-                else:
-                    building_current_link = get_each_building_detail(building_link_in_page, building_name)
-                    main_building_name = building_name
-                    
-            except:
-                main_building_name = name
-                building_current_link = None
-
-
             time.sleep(3)
             driver.find_element(By.XPATH, "//*[@aria-label='View gallery']").click() # opening photos window
             photos = driver.find_element(By.XPATH, "//*[@aria-label='Gallery dialog photo grid']").find_elements(By.TAG_NAME, "img")
@@ -185,22 +193,18 @@ def get_each_prop_detail(all_link, building_name):
             for photo in photos:
                 photo = photo.get_attribute("src")
                 requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&img={photo}")
+        
 
-            time.sleep(5)
-            if main_building_name and area and city is not None:
-                req = requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&building_name={main_building_name}&building_link={building_current_link}&community={community}&area={area}&city={city}&bed={bed}&bath={bath}&price={price}&description={desc}&unit_area={unit_area}")
+
+            agent_link = get_agent_bio(agent_bio_link)
+
+            if building_name and area and city is not None:
+                req = requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&agent_link={agent_bio_link}&building_name={building_name}&building_link={None}&community={community}&area={area}&city={city}&bed={bed}&bath={bath}&price={price}&description={desc}&unit_area={unit_area}&complex_name={complex}")
                 if req.status_code == 500:
-                    main_building_name = building_name
-                    req = requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&building_name={main_building_name}&building_link={building_current_link}&community={community}&area={area}&city={city}&bed={bed}&bath={bath}&price={price}&description={desc}&unit_area={unit_area}")
-        except:
-            pass
+                    req = requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&agent_link={agent_bio_link}&building_name={building_name}&building_link={None}&community={community}&area={area}&city={city}&bed={bed}&bath={bath}&price={price}&description={desc}&unit_area={unit_area}&complex_name={complex}")
+    
     
     is_ok(building_name)
-
-
-
-
-          
 
            
 def get_each_prop(building_name):
@@ -225,24 +229,25 @@ def get_each_prop(building_name):
     get_each_prop_detail(all_link, building_name)
 
 
+def go_to_search_input(search_input):
+    driver.get("https://www.bayut.com/")
+    input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
+    input.send_keys(f"{search_input}")
+    time.sleep(4)
+    input.send_keys(Keys.SPACE)
+    time.sleep(10)
+    input.send_keys(Keys.ENTER)
+    time.sleep(3)
+    driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
+    time.sleep(1)
+
 
 for i in data: 
-    if i[10] == 0:
+    
+    if i[7] == 1:
         print(i[0])
-        driver.get("https://www.bayut.com/")
-        input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
-        input.send_keys(f"{i[1]}")
-        time.sleep(10)
-        input.send_keys(Keys.ENTER)
-        time.sleep(3)
-        driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
+        go_to_search_input(i[1])
         get_each_prop(i[1])
 
-        # driver.get("https://www.bayut.com/")
-        # input = driver.find_element(By.XPATH, "//*[@placeholder='Enter location']")
-        # input.send_keys(f"{i[1]}")
-        # time.sleep(5)
-        # input.send_keys(Keys.ENTER)
-        # driver.find_element(By.XPATH, "//*[@aria-label='To rent']").click()
-        # driver.find_element(By.XPATH, "//*[@aria-label='Find button']").click()
-        # time.sleep(5)                                                                                                                                                 
+
+
