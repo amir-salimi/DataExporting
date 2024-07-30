@@ -17,7 +17,6 @@ configuration("https://48b901e268fd490dd37803bd38674eea@o4507526316883968.ingest
 CITY_NAME = "Sharjah"
 
 
-
 def chrome_webdriver():
     chromedriver_path = os.getcwd()+"/chromedriver"
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) ' \

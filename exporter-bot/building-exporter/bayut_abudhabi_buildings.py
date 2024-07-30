@@ -134,10 +134,8 @@ driver.get(URL)
 
 main_page = driver.page_source
 
-
 driver.find_element(By.CLASS_NAME, "scrollbar-hide").find_element(By.CLASS_NAME, "flex").click() # to show all location 
 areas = driver.find_element(By.CLASS_NAME, "scrollbar-hide").find_element(By.CLASS_NAME, "grid").find_elements(By.TAG_NAME, "a") # get all areas
-
 area_link = []
 
 for area in areas:

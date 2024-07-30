@@ -11,9 +11,12 @@ cursor.execute("SELECT * FROM buildings")
 data = cursor.fetchall()
 
 def get_community(id):
-    cursor.execute(f"SELECT * FROM communities where id={id}")
-    community = cursor.fetchall()
-    return community
+    try:
+        cursor.execute(f"SELECT * FROM communities where id={id}")
+        community = cursor.fetchall()
+        return str(community[0][1]).lower()
+    except:
+        return None
 
 def get_area(id):
     cursor.execute(f"SELECT * FROM areas where id={id}")
@@ -36,23 +39,20 @@ data_list = []
 
 for i in data:
     building_id = i[0]
-    if i[5] != None:
-        community = get_community(i[5]) # i[5] -> community_id
-    else:
-        pass
+    
+    community = get_community(i[5]) # i[5] -> community_id
+
     if i[3] != None:
         area = get_area(i[3]) # i[3] -> area_id
     else:
-        pass
+        area = None
     city = get_city(i[4]) # i[4] -> city_id
 
-    complex = ""
-    print(community[0][1])
-    print(area[0][1])
-    print(city[0][1])
+    complex = None
 
-    data_list.append([building_id, city[0][1].lower(), area[0][1].lower(), community[0][1].lower(), complex.lower(), i[1].lower()])
 
+    data_list.append([building_id, city[0][1].lower(), area[0][1].lower(), community, complex, i[1].lower()])
+    # data_list.append([get_community(i[5])])
 
 file = "/home/amir/Documents/export_data/exporter-bot/data-formater/area_category/main.csv"
 

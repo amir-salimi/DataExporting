@@ -6,7 +6,7 @@ import time
 from help import remove_new_line, split_data, delete_repeat_data
 
 
-url = "https://opr.ae/projects"
+url = " "
 
 load_more_url = "https://api.opr.ae/offplan/"
 
@@ -68,13 +68,11 @@ def get_eahc_project_plan(soup, link):
         requests.get(f"http://127.0.0.1:8000/opr-data/?link={link}&plan={i}")
 
 
-
 def get_each_project_img(soup, link):
     imgs = soup.find_all(class_='gallery427-image fancybox')
     for img in imgs:
         image = img.get("href")
         requests.get(f"http://127.0.0.1:8000/opr-data/?link={link}&img={image}")
-
 
 
 def get_each_project_about(soup, link):
@@ -85,6 +83,7 @@ def get_each_project_about(soup, link):
             requests.get(f"http://127.0.0.1:8000/opr-data/?about={data}&link={link}")
     except:
         pass
+
 
 def get_each_project_frequently_question(soup, link):
     array = []
@@ -99,6 +98,7 @@ def get_each_project_frequently_question(soup, link):
                 requests.get(f"http://127.0.0.1:8000/opr-data/?question={i}&answer={array[array.index(i)+1]}&link={link}")
     except:
         pass
+
 
 def get_data_from_each_link(link, array):
     each_page = requests.get(link)
@@ -159,8 +159,6 @@ def get_detail(soup):
     array = [name, location, developer, link, category, price, payment_plan, status]
     value = get_data_from_each_link(link, array)
     
-    
-
 
 def load_another_page():
     for i in range(10, 14): #13
@@ -171,10 +169,7 @@ def load_another_page():
         for soup in all_loaded_data:
             time.sleep(1)
             val = get_detail(soup)
-        
-
-            
-            
+                 
 
 def first_page_data():
     page = requests.get(url)
@@ -183,7 +178,6 @@ def first_page_data():
     for soup in all_data:
         val = get_detail(soup)
     load_another_page()
-
 
 
 first_page_data()

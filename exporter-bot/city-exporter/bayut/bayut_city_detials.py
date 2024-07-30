@@ -33,6 +33,7 @@ url = 'https://www.bayut.com/for-sale/property/uae/'
 
 driver = chrome_webdriver()
 
+
 def get_properties(url, drop_down):
     try:
         driver.set_page_load_timeout(60)
@@ -84,5 +85,6 @@ if prop_list is not None:
                             requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&area={area[0]}&building={community[0]}&source=https://www.bayut.com/")
                 else:
                     requests.get(f"http://127.0.0.1:8000/city-prop/?city={city}&building={area[0]}&source=https://www.bayut.com/")
+
 driver.close()
 

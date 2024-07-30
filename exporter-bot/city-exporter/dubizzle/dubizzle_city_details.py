@@ -32,6 +32,7 @@ def chrome_webdriver():
 url = 'https://uae.dubizzle.com/en/property-for-sale/'
 driver = chrome_webdriver()
 
+
 def get_properties(url, drop_down):
     try:
         driver.set_page_load_timeout(60)

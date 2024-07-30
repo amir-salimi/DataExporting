@@ -9,9 +9,6 @@ import time
 dxb_url = "https://dxboffplan.com/offplan-projects/"
 
 
-
-
-
 def data_from_url(link_array):
 
     data_array = []
@@ -52,6 +49,7 @@ def data_from_url(link_array):
 
         data_array = []
     return 
+
 
 def get_link():
     link_array = []
