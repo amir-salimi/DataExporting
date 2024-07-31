@@ -10,7 +10,7 @@ class RealEstate(models.Model):
     link = models.CharField(max_length=128)
     
     property_types = models.CharField(max_length=128)
-    service_areas = models.CharField(max_length=256)
+    service_areas = models.TextField()
     properties = models.CharField(max_length=64)
     description = models.TextField()
     brn = models.CharField(max_length=9, verbose_name="BRN", null=True, blank=True)
@@ -34,7 +34,7 @@ class Agent(models.Model):
     photo = models.CharField(max_length=128, null=True, blank=True)
     languages = models.CharField(max_length=64)
     specialities = models.CharField(max_length=128)
-    service_areas = models.CharField(max_length=256)
+    service_areas = models.TextField()
     properties = models.CharField(max_length=64)
     description = models.TextField()
     experience = models.CharField(max_length=64, null=True, blank=True)

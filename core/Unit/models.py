@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.timezone import now
 
 from Building.models import Building, Complex
-from RealEstate.models import Agent
+from RealEstate.models import Agent, RealEstate
 
 
 class UnitPhoto(models.Model):
@@ -34,7 +34,9 @@ class UnitOfBuilding(models.Model):
     detail = models.ManyToManyField(UnitDetail, null=True, blank=True)
     complex_name = models.ForeignKey(to=Complex, on_delete=models.DO_NOTHING, null=True, blank=True)
     created_time = models.DateTimeField(default=now)
-    agent = models.ForeignKey(to=Agent, on_delete=models.DO_NOTHING)
+    price = models.CharField(max_length=32)
+    agent = models.ForeignKey(to=Agent, on_delete=models.DO_NOTHING, null=True, blank=True)
+    agency = models.ForeignKey(to=RealEstate, on_delete=models.DO_NOTHING, null=True, blank=True)
 
     class Meta:
         db_table = "unit_of_buildings"

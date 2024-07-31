@@ -81,6 +81,7 @@ class AgentSet(CreateView):
         description = None
         brn = None
         experience = None
+        
         details = ast.literal_eval(details)
 
         for detail in details:
