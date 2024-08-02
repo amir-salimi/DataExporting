@@ -44,61 +44,94 @@ data = cursor.fetchall()
 
 
 def get_agency_bio(agency_bio_link):
-
+    agency_details_list = []
     driver.get(agency_bio_link)
-    
+
     agency_name = driver.find_element(By.XPATH, "//*[@aria-label='Agency name']").text
     agency_img = driver.find_element(By.XPATH, f"//*[@aria-label='Agency logo']").get_attribute("src")
-
-    driver.find_element(By.XPATH, "//span[text()='Read all']").click()
     
+    driver.find_element(By.XPATH, "//span[text()='Read all']").click()
     try:
         driver.find_element(By.XPATH, "//span[text()='See all areas']").click()
     except:
         pass
 
     time.sleep(5)
-
-
     agency_details = driver.find_elements(By.XPATH, "//div[@dir='ltr']")
-
-
-    agency_details_list = []
-
+    
     for detail in agency_details:
         agency_detail = detail.text
         if "Read less" in agency_detail:
             agency_detail = agency_detail.replace("Read less", "")
         if "See less areas" in agency_detail:
             agency_detail = agency_detail.replace("See less areas", "")
-        if "BRN" in agency_detail:
-            agency_detail = agency_detail.replace("\n", "")
+
         agency_detail = agency_detail.replace("&", "and").replace("'", "")
         agency_details_list.append(agency_detail)
 
-    if "Description" in str(agency_details_list):
-        print("ok")
-    else:
-        print("repeat...")
-        get_agency_bio(agency_bio_link)
 
+    if "Description" in str(agency_details_list): # if the data is not complite it restart the function with agent_bio_link
+        pass
+    else:
+        get_agency_bio(agency_bio_link)
 
     driver.find_element(By.XPATH, "//button[@aria-label='Call']").click()
 
     time.sleep(3)
+
     agency_phone_number = driver.find_element(By.XPATH, "//*[@aria-label='Listing phone number']").text
 
-    # print("agency : ")
-    print("agency_bio_link : ", agency_bio_link)
-    # print("agency_name : ", agency_name)
-    # print("agency_img : ", agency_img)
-    # print("agency_phone_number : ", agency_phone_number)
-    print("agency_details_list : ", agency_details_list)
-    
 
-    print("//////////////////////////")
+    prop_types = None        
+    service_areas = None        
+    properties = None
+    description = None
+    brn = None
+    arra = None
+    ded = None
 
-    requests.get(f"http://127.0.0.1:8000/agency/?name={agency_name}&link={agency_bio_link}&phone_number={agency_phone_number}&details={agency_details_list}&agency_photo={agency_img}")
+    for detail in agency_details_list:
+        if "Property Types" in detail:
+            prop_types = detail.split(":")
+            prop_types = prop_types[1]
+        if "Service Areas" in detail:
+            service_areas = detail.split(":")
+            service_areas = service_areas[1]
+        if "Properties" in detail:
+            properties = detail.split(":")
+            properties = properties[1]
+        if "Description" in detail:
+            description = detail.split(":")
+            description = description[1] 
+        if "BRN" in detail:
+            brn = detail.split(":")
+            brn = brn[1] 
+            brn = brn.replace("\n", "")
+        if "ARRA" in detail:
+            arra = detail.split(":")
+            arra = arra[1] 
+            arra = arra.replace("\n", "")
+        if "DED" in detail:
+            ded = detail.split(":")
+            ded = ded[1] 
+            ded = ded.replace("\n", "")   
+
+    post_data = {
+        "name": agency_name,
+        "photo": agency_img,
+        "link": agency_bio_link,
+        "property_types": prop_types,
+        "service_areas": service_areas,
+        "properties": properties,
+        "description": description,
+        "brn": brn,
+        "arra": arra,
+        "ded": ded,
+        "phone_number": agency_phone_number
+    }
+    requests.post("http://127.0.0.1:8000/agency/", data=post_data)
+
+    # requests.get(f"http://127.0.0.1:8000/agency/?name={agency_name}&link={agency_bio_link}&phone_number={agency_phone_number}&details={agency_details_list}&agency_photo={agency_img}")
 
 
 def get_agent_bio(agent_bio_link):
