@@ -7,6 +7,11 @@ import sqlite3
 import time
 import os
 import requests
+import json
+
+headers = {
+    'Content-Type': 'application/json'
+}   
 
 connection = sqlite3.connect("/home/amir/Documents/export_data/core/db.sqlite3")
 
@@ -23,14 +28,66 @@ def chrome_webdriver():
     return driver
 
 
+def get_dubai_id():
+    cr = connection.cursor()
+    cr.execute(f"SELECT * FROM cities where name like 'dubai';")
+    city = cr.fetchall()
+    return city[0][0]
+
+
+def get_complex_id_by_name(complex_name):
+    cr = connection.cursor()
+    cr.execute(f"SELECT * FROM cities where complexs like '{complex_name}';")
+    complex = cr.fetchall()
+    return complex[0][0]
+
+def get_building_detail_from_db_by_id(building_id):
+    cur = connection.cursor()
+    cur.execute(f"SELECT * FROM buildings where id={building_id};")
+    building = cur.fetchall()
+    return building
+
+def get_building_detail_from_db_by_name(building_name):
+    cur = connection.cursor()
+    cur.execute(f"SELECT * FROM buildings where name like '{building_name}';")
+    building = cur.fetchall()
+    return building
+
+def get_area(area_id):
+    cr = connection.cursor()
+    cr.execute(f"SELECT * FROM areas where id = {area_id};")
+    area = cr.fetchall()
+    return area[0][1]
+
+
+def get_complex_buildings(complex_id):
+    cr = connection.cursor()
+    cr.execute(f"SELECT * FROM complexs_buildings where complex_id = {complex_id};") # get complex with complex_id
+    complexs = cr.fetchall()
+    building_id_list = []
+    for c in complexs:
+        building_id_list.append(c[2]) # n[2] -> building id
+    return building_id_list
+
+
+def go_to_search_input(search_input):
+    driver.get("https://propsearch.ae/")
+    input = driver.find_element(By.XPATH, "//*[@title='Search all of Dubai real estate']").click()
+    time.sleep(1)
+    input = driver.find_element(By.XPATH, "//*[@placeholder='Search anything']")
+    input.send_keys(f"{search_input}")
+    time.sleep(2)
+    input.send_keys(Keys.ENTER)
+    time.sleep(3)
+
 driver = chrome_webdriver()
 
 
-def get_building_detail_from_db(building_id):
-    cur = connection.cursor()
-    cur.execute(f"SELECT * FROM buildings where id={building_id}")
-    building = cur.fetchall()
-    return building
+
+
+
+
+
 
 
 def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
@@ -57,40 +114,33 @@ def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
         about = ""
         for i in range(2, len(pose), 3):
             about += pose[i] + " "
+
         if from_complex == True:
             requests.get(f"http://127.0.0.1:8000/building/?link={link}&status={status}&name={name}&location={location}&about={about}&source=https://propsearch.ae/&area={location}&city=Dubai&complex_name={c_n}")
+
         else:
-            requests.get(f"http://127.0.0.1:8000/update-buildings/?link={link}&status={status}&name={name}&location={location}&about={about}&source=https://propsearch.ae/")
+            building_id = get_building_detail_from_db_by_name(name)[0][0]
+            
+            headers = {
+                'Content-Type': 'application/json'
+            }   
+
+            put_data = json.dumps(
+                {
+                    "name": str(name),
+                    "building_link": str(link),
+                    "status": str(status),
+                    "location": str(location),
+                    "about": str(about),
+                    "source": "https://propsearch.ae/"
+                }
+            )
+            requests.put(url=f"http://127.0.0.1:8000/update-buildings/{building_id}/", headers=headers, data=put_data)
     except:
         pass
 
 
-def get_area(area_id):
-    cr = connection.cursor()
-    cr.execute(f"SELECT * FROM areas where id = {area_id}")
-    area = cr.fetchall()
-    return area[0][1]
 
-
-def get_complex_buildings(complex_id):
-    cr = connection.cursor()
-    cr.execute(f"SELECT * FROM complexs_buildings where complex_id = {complex_id}") # get complex with complex_id
-    complexs = cr.fetchall()
-    building_id_list = []
-    for c in complexs:
-        building_id_list.append(c[2]) # n[2] -> building id
-    return building_id_list
-
-
-def go_to_search_input(search_input):
-    driver.get("https://propsearch.ae/")
-    input = driver.find_element(By.XPATH, "//*[@title='Search all of Dubai real estate']").click()
-    time.sleep(1)
-    input = driver.find_element(By.XPATH, "//*[@placeholder='Search anything']")
-    input.send_keys(f"{search_input}")
-    time.sleep(2)
-    input.send_keys(Keys.ENTER)
-    time.sleep(3)
 
 
 def get_building_detail_of_complex(complex_name):
@@ -117,21 +167,25 @@ def get_building_detail_of_complex(complex_name):
         get_detail(name_of_building, building_location, from_complex=True, c_n=complex_name)
 
 
+
+
 cursor = connection.cursor()
-cursor.execute("SELECT * FROM buildings")
+cursor.execute("SELECT * FROM buildings;")
 data = cursor.fetchall()
 
 for i in data: 
-    if i[6] == 0:
-        if i[9] == 1:
+    if i[7] == 1:
+        if i[10] == get_dubai_id():
             go_to_search_input(i[1])
             if driver.current_url != "https://propsearch.ae/":
-                get_detail(i[1], i[9])
+                get_detail(name=i[1], location=i[5], from_complex=None, c_n=None)
     break
 
 
+
+
 cursor = connection.cursor()
-cursor.execute("SELECT * FROM complexs")
+cursor.execute("SELECT * FROM complexs;")
 data = cursor.fetchall()
 
 
@@ -143,14 +197,16 @@ for complex in data:
     complex_is_ok = None
 
     for building_id in building_list_id:
-        if get_building_detail_from_db(building_id)[0][3] == None:
+        if get_building_detail_from_db_by_id(building_id)[0][3] == None:
             complex_is_ok = False
             break
     
     if complex_is_ok == False and complex[7] != 1:
         go_to_search_input(complex_name)
         get_building_detail_of_complex(complex_name)
-        requests.get(f"http://127.0.0.1:8000/building/?complex_name={complex_name}&publish_status={1}")
+        complex_id = get_complex_id_by_name(complex_name)
+        requests.patch(f"http://127.0.0.1:8000/update-complex-publish-status/{complex_id}/", headers=headers, data=json.dumps({"publish_status" : 1}))
+
 
 
 
