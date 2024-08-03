@@ -25,18 +25,21 @@ class UnitDetail(models.Model):
 
 class UnitOfBuilding(models.Model):
     building_name = models.ForeignKey(Building, on_delete=models.DO_NOTHING)
+
     bed = models.CharField(max_length=32)
     bath = models.CharField(max_length=32)
     area = models.CharField(max_length=32)
     description = models.TextField()
     building_link = models.CharField(max_length=128)
+    price = models.CharField(max_length=32)
+
     photo = models.ManyToManyField(UnitPhoto, null=True, blank=True)
     detail = models.ManyToManyField(UnitDetail, null=True, blank=True)
-    complex_name = models.ForeignKey(to=Complex, on_delete=models.DO_NOTHING, null=True, blank=True)
-    created_time = models.DateTimeField(default=now)
-    price = models.CharField(max_length=32)
+    
     agent = models.ForeignKey(to=Agent, on_delete=models.DO_NOTHING, null=True, blank=True)
     agency = models.ForeignKey(to=Agency, on_delete=models.DO_NOTHING, null=True, blank=True)
+
+    created_time = models.DateTimeField(default=now)
 
     class Meta:
         db_table = "unit_of_buildings"

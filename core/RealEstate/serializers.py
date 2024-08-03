@@ -13,7 +13,6 @@ class RealEstateModelSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data["name"] = str(validated_data["name"]).lower()
-        print(validated_data)
         real_estate, real_estate_created = Agency.objects.get_or_create(**validated_data)
         return real_estate
     
@@ -30,7 +29,6 @@ class AgentModelSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["name"] = str(validated_data["name"]).lower()
         validated_data["agency"] = Agency.objects.filter(name=str(validated_data.pop("agency")).lower()).first()
-        print(validated_data["agency"])
         agent, agent_created = Agent.objects.get_or_create(**validated_data)
         return agent
 

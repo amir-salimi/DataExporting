@@ -3,16 +3,16 @@ from django.utils.timezone import now
 
 
 class Agency(models.Model):
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=128)
     photo = models.CharField(max_length=128, null=True, blank=True)
     link = models.CharField(max_length=128)
-    property_types = models.CharField(max_length=128)
+    property_types = models.CharField(max_length=256)
     service_areas = models.TextField()
-    properties = models.CharField(max_length=64)
+    properties = models.TextField()
     description = models.TextField()
-    brn = models.CharField(max_length=19, verbose_name="BRN", null=True, blank=True)
-    arra = models.CharField(max_length=19, verbose_name="ARRA", null=True, blank=True)
-    ded = models.CharField(max_length=19, verbose_name="DED", null=True, blank=True)
+    brn = models.CharField(max_length=25, verbose_name="BRN", null=True, blank=True)
+    arra = models.CharField(max_length=25, verbose_name="ARRA", null=True, blank=True)
+    ded = models.CharField(max_length=25, verbose_name="DED", null=True, blank=True)
     phone_number = models.CharField(max_length=18)
     created_at = models.DateTimeField(default=now)
 
@@ -25,17 +25,17 @@ class Agency(models.Model):
 
 
 class Agent(models.Model):
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=128)
     link = models.CharField(max_length=128)
     photo = models.CharField(max_length=128, null=True, blank=True)
-    languages = models.CharField(max_length=64)
+    languages = models.CharField(max_length=128)
     specialities = models.CharField(max_length=128)
     service_areas = models.TextField()
-    properties = models.CharField(max_length=64)
+    properties = models.TextField()
     description = models.TextField()
-    experience = models.CharField(max_length=64, null=True, blank=True)
-    phone_number = models.CharField(max_length=18)
-    brn = models.CharField(max_length=9, verbose_name="BRN", null=True, blank=True)
+    experience = models.CharField(max_length=128, null=True, blank=True)
+    phone_number = models.CharField(max_length=25)
+    brn = models.CharField(max_length=25, verbose_name="BRN", null=True, blank=True)
     agency = models.ForeignKey(to=Agency, on_delete=models.DO_NOTHING, null=True, blank=True)
     created_at = models.DateTimeField(default=now)
 

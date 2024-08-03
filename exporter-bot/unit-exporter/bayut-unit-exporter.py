@@ -18,16 +18,6 @@ def chrome_webdriver():
     return driver
 
 
-def is_ok(building):
-    if building != None:
-        is_ok_building = building
-
-    if is_ok_building:
-        try:
-            requests.get(f"http://127.0.0.1:8000/building-unit?is_ok={True}&building_name={is_ok_building}")
-        except:
-            pass
-
 driver = chrome_webdriver()
 connection = sqlite3.connect("/home/amir/Documents/export_data/core/db.sqlite3")
 cursor = connection.cursor()
@@ -125,7 +115,6 @@ def get_agency_bio(agency_bio_link):
         "ded": str(ded),
         "phone_number": str(agency_phone_number)
     }
-
     requests.post(url="http://127.0.0.1:8000/agency/", data=json.dumps(post_data), headers=headers)
 
 
@@ -142,7 +131,6 @@ def get_agent_bio(agent_bio_link):
     headers = {
         'Content-Type': 'application/json'
     } 
-
 
     driver.get(agent_bio_link)
 
@@ -219,11 +207,14 @@ def get_agent_bio(agent_bio_link):
         "brn": brn,
         "agency": agency_name
     }
-
     requests.post(url="http://127.0.0.1:8000/agent/", data=json.dumps(post_data), headers=headers)
   
 
 def get_each_prop_detail(all_link, building_name):
+    headers = {
+        'Content-Type': 'application/json'
+    } 
+
     for link in all_link:
             complex = None
             agency_bio_link = None
@@ -296,7 +287,18 @@ def get_each_prop_detail(all_link, building_name):
                 prop_detail = prop_detail.text.split("\n")
                 key = prop_detail[0]
                 value = prop_detail[1]
-                requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&key={key}&value={value}")
+
+                requests.post(
+                    url="http://127.0.0.1:8000/unit-detail/",
+                    data=json.dumps(
+                        {
+                            "building_link": link,
+                            "key": key,
+                            "value": value
+                        }
+                    ),
+                    headers=headers
+                )
 
             time.sleep(3)
             driver.find_element(By.XPATH, "//*[@aria-label='View gallery']").click() # opening photos window
@@ -304,25 +306,42 @@ def get_each_prop_detail(all_link, building_name):
 
             for photo in photos:
                 photo = photo.get_attribute("src")
-                requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&img={photo}")
-        
-
-            
+                
+                requests.post(
+                    url="http://127.0.0.1:8000/unit-photo/",
+                    data=json.dumps(
+                        {
+                            "building_link": link,
+                            "img_link": photo
+                        }
+                    ),
+                    headers=headers
+                )
+    
             try:
                 get_agent_bio(agent_bio_link)
             except:
                 get_agency_bio(agency_bio_link)
 
-            print(agent_bio_link)
-            print(agency_bio_link)
 
+            post_data = json.dumps(
+                {
+                    "building_name": str(building_name),
+                    "bed": str(bed),
+                    "bath": str(bath),
+                    "area": str(area),
+                    "description": str(desc),
+                    "building_link": str(link),
+                    "price": str(price),
+                    "agent": str(agent_bio_link),
+                    "agency": str(agency_bio_link)
+                }
+            )
             if building_name and area and city is not None:
-                req = requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&agency_link={agency_bio_link}&agent_link={agent_bio_link}&building_name={building_name}&building_link={None}&community={community}&area={area}&city={city}&bed={bed}&bath={bath}&price={price}&description={desc}&unit_area={unit_area}&complex_name={complex}&price={price}")
+                req = requests.post(url="http://127.0.0.1:8000/unit/", headers=headers, data=post_data)
                 if req.status_code == 500:
-                    req = requests.get(f"http://127.0.0.1:8000/building-unit?link={link}&agency_link={agency_bio_link}&agent_link={agent_bio_link}&building_name={building_name}&building_link={None}&community={community}&area={area}&city={city}&bed={bed}&bath={bath}&price={price}&description={desc}&unit_area={unit_area}&complex_name={complex}&price={price}")
+                    req = requests.post(url="http://127.0.0.1:8000/unit/", headers=headers, data=post_data)
     
-    
-    is_ok(building_name)
 
            
 def get_each_prop(building_name):
@@ -360,9 +379,8 @@ def go_to_search_input(search_input):
     time.sleep(1)
 
 
-for i in data: 
+for i in data:
     if i[7] == 1:
-        print(i[0])
         go_to_search_input(i[1])
         get_each_prop(i[1])
 
