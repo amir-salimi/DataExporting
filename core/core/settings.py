@@ -37,13 +37,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+]
+
+INSTALLED_APPS += [
     'rest_framework',
     'rest_framework_swagger',
     'drf_yasg',
+    'django_filters',
 
     'export',
     'area',
-    'django_filters',
     'RealEstate',
     'Building',
     'Unit',
