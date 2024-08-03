@@ -48,16 +48,15 @@ class Building(models.Model):
     community = models.ForeignKey(to=Community, on_delete=models.DO_NOTHING, null=True, blank=True)
     name = models.CharField(max_length=64)
     source = models.CharField(max_length=128)
-
     building_link = models.CharField(max_length=128, null=True, blank=True)
     status = models.CharField(max_length=64, null=True, blank=True)
     location = models.CharField(max_length=64, null=True, blank=True)
     about = models.TextField(default=None, null=True, blank=True)
+    publish_status = models.PositiveSmallIntegerField(choices=PUBLISH_STATUS, default=0)
+    
     details = models.ManyToManyField(BuildingDetail, null=True, blank=True)
     img_link = models.ManyToManyField(BuildingImg, null=True, blank=True)
     highlight = models.ManyToManyField(BuildingHighlight, null=True, blank=True)
-
-    publish_status = models.PositiveSmallIntegerField(choices=PUBLISH_STATUS, default=0)
     
     created_time = models.DateTimeField(default=now)
 
@@ -81,13 +80,10 @@ class Complex(models.Model):
     )
 
     name = models.CharField(max_length=64)
-
     city = models.ForeignKey(to=City, on_delete=models.DO_NOTHING, null=True, blank=True)
     area = models.ForeignKey(to=Area, on_delete=models.DO_NOTHING, null=True, blank=True)
     community = models.ForeignKey(to=Community, on_delete=models.DO_NOTHING, null=True, blank=True)
-
     buildings = models.ManyToManyField(Building)
-
     publish_status = models.PositiveSmallIntegerField(choices=PUBLISH_STATUS, default=draft)
     created_time = models.DateTimeField(default=now)
 

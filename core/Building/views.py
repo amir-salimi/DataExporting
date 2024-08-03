@@ -5,15 +5,29 @@ from django.db.models import Q
 from django.http import HttpResponse
 from datetime import datetime
 
+from rest_framework.viewsets import generics
+
 from .models import Building, BuildingDetail, BuildingImg, BuildingHighlight, Complex
 from area.models import Area, Community, City
+
+from .serializers import UpdateBuildingDetailModelSerializer, UpdateComplexPublishStatusModelSerializer
 
 
 class HttpResponseOk(HttpResponse):
     status_code = 200
 
 
-class BuildingSet(CreateView):
+class UpdateBuildingDetailsViewSet(generics.UpdateAPIView):
+    queryset = Building.objects.all()
+    serializer_class = UpdateBuildingDetailModelSerializer
+
+
+class UpdateComplexPublishStatusViewSet(generics.UpdateAPIView):
+    queryset = Complex.objects.all()
+    serializer_class = UpdateComplexPublishStatusModelSerializer
+
+
+class BuildingViewSet(CreateView):
     def get(self, request):
         name = request.GET.get("name", None)
         link = request.GET.get("link", None)
@@ -28,11 +42,6 @@ class BuildingSet(CreateView):
         complex_name = request.GET.get("complex_name", None)
         publish_status = request.GET.get("publish_status", None)
 
-        if complex_name and publish_status is not None:
-            complexs = Complex.objects.filter(name__iexact=complex_name)
-            for c in complexs:
-                c.publish_status = 1
-                c.save()
                 
         if link and highlight:
             BuildingHighlight.objects.get_or_create(building_link=link, highlight=highlight)
@@ -98,27 +107,6 @@ class MergDuplicateBuilding(DetailView):
         return HttpResponseOk()
     
 
-class UpdateBuildings(UpdateView):
-    def get(self, request):
-        link = request.GET.get("link", None)
-        status = request.GET.get("status", None)
-        name = request.GET.get("name", None)
-        location = request.GET.get("location", None)
-        about = request.GET.get("about", None)
-        source = request.GET.get("source", None)
-        
-        if link and name and location and about:
-            select_buildings = Building.objects.filter(name__iexact=name)
-            for select_building in select_buildings:
-                select_building.about = about
-                select_building.status = status
-                select_building.location = location
-                select_building.building_link = link
-                select_building.created_time = datetime.now()
-                select_building.publish_status = 1
-                select_building.source = source
-                select_building.save()
 
-        return HttpResponseOk()
     
     
