@@ -4,7 +4,7 @@ from django.views.generic import CreateView
 from django.core.exceptions import ObjectDoesNotExist
 
 from Building.models import Building
-from RealEstate.models import Agent, RealEstate
+from RealEstate.models import Agent, Agency
 
 from . models import UnitDetail, UnitOfBuilding, UnitPhoto
 from .filter import ProductFilter
@@ -63,7 +63,7 @@ class BuildingUnit(CreateView):
                     complex = None
 
                 agent = Agent.objects.filter(link=agent_bio_link).first()
-                agency = RealEstate.objects.filter(link=agency_bio_link).first()
+                agency = Agency.objects.filter(link=agency_bio_link).first()
                 unit = UnitOfBuilding.objects.create(price=price, building_name=building, agent=agent, agency=agency, building_link=link, bed=bed, bath=bath, area=unit_area, description=description, complex_name=complex)
                 
                 photos = UnitPhoto.objects.filter(building_link=link)

@@ -1,16 +1,10 @@
 from selenium import webdriver
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-
 from selenium.webdriver.common.keys import Keys
 
-import os
-import ast
-import time
-import requests
-import sqlite3
-import pandas as pd
+import os, time, requests, sqlite3, json
+
 
 def chrome_webdriver():
     chromedriver_path = os.getcwd()+"/chromedriver"
@@ -34,8 +28,6 @@ def is_ok(building):
         except:
             pass
 
-
-
 driver = chrome_webdriver()
 connection = sqlite3.connect("/home/amir/Documents/export_data/core/db.sqlite3")
 cursor = connection.cursor()
@@ -45,6 +37,18 @@ data = cursor.fetchall()
 
 def get_agency_bio(agency_bio_link):
     agency_details_list = []
+    prop_types = None        
+    service_areas = None        
+    properties = None
+    description = None
+    brn = None
+    arra = None
+    ded = None
+
+    headers = {
+        'Content-Type': 'application/json'
+    }   
+
     driver.get(agency_bio_link)
 
     agency_name = driver.find_element(By.XPATH, "//*[@aria-label='Agency name']").text
@@ -81,15 +85,6 @@ def get_agency_bio(agency_bio_link):
 
     agency_phone_number = driver.find_element(By.XPATH, "//*[@aria-label='Listing phone number']").text
 
-
-    prop_types = None        
-    service_areas = None        
-    properties = None
-    description = None
-    brn = None
-    arra = None
-    ded = None
-
     for detail in agency_details_list:
         if "Property Types" in detail:
             prop_types = detail.split(":")
@@ -116,25 +111,39 @@ def get_agency_bio(agency_bio_link):
             ded = ded[1] 
             ded = ded.replace("\n", "")   
 
-    post_data = {
-        "name": agency_name,
-        "photo": agency_img,
-        "link": agency_bio_link,
-        "property_types": prop_types,
-        "service_areas": service_areas,
-        "properties": properties,
-        "description": description,
-        "brn": brn,
-        "arra": arra,
-        "ded": ded,
-        "phone_number": agency_phone_number
-    }
-    requests.post("http://127.0.0.1:8000/agency/", data=post_data)
 
-    # requests.get(f"http://127.0.0.1:8000/agency/?name={agency_name}&link={agency_bio_link}&phone_number={agency_phone_number}&details={agency_details_list}&agency_photo={agency_img}")
+    post_data = {
+        "name": str(agency_name),
+        "photo": str(agency_img),
+        "link": str(agency_bio_link),
+        "property_types": str(prop_types),
+        "service_areas": str(service_areas),
+        "properties": str(properties),
+        "description": str(description),
+        "brn": str(brn),
+        "arra": str(arra),
+        "ded": str(ded),
+        "phone_number": str(agency_phone_number)
+    }
+
+    requests.post(url="http://127.0.0.1:8000/agency/", data=json.dumps(post_data), headers=headers)
 
 
 def get_agent_bio(agent_bio_link):
+    agent_details_list = []
+    languages = None
+    specialities = None
+    service_areas = None
+    properties = None
+    description = None
+    brn = None
+    experience = None
+
+    headers = {
+        'Content-Type': 'application/json'
+    } 
+
+
     driver.get(agent_bio_link)
 
     agency_name = driver.find_element(By.XPATH, "//*[@aria-label='Agency name']").text
@@ -161,8 +170,7 @@ def get_agent_bio(agent_bio_link):
     driver.find_element(By.XPATH, "//*[@aria-label='Call']").click()
     time.sleep(3)
     agent_phone_number = driver.find_element(By.XPATH, "//*[@aria-label='Listing phone number']").text
-    agent_details_list = []
-
+    
     for detail in agent_details:
         agent_detail = detail.text
         if "Read less" in agent_detail:
@@ -173,21 +181,47 @@ def get_agent_bio(agent_bio_link):
         agent_details_list.append(agent_detail)
 
     newList = [item.replace("'", '"') for item in agent_details_list]
-    
 
-    print("agent : ")
-    print("agency_name : ", agency_name)
-    print("agency_bio_link : ", agency_bio_link)
-    print("agent_name : ", agent_name)
-    print("agent_img : ", agent_img)
-    print("agent_phone_number : ", agent_phone_number)
-    print("agent_details_list : ", newList)   
+    for detail in newList:
+        if "Language(s)" in detail:
+            languages = detail.split(":")
+            languages = languages[1]
+        if "Specialities" in detail:
+            specialities = detail.split(":")
+            specialities = specialities[1]
+        if "Service Areas" in detail:
+            service_areas = detail.split(":")
+            service_areas = service_areas[1]
+        if "Properties" in detail:
+            properties = detail.split(":")
+            properties = properties[1]
+        if "Description" in detail:
+            description = detail.split(":")
+            description = description[1] 
+        if "BRN" in detail:
+            brn = detail.split(":")
+            brn = brn[1] 
+        if "Experience" in detail:
+            experience = detail.split(":")
+            experience = experience[1]     
     
+    post_data = {
+        "name": agent_name,
+        "link": agent_bio_link,
+        "photo": agent_img,
+        "languages": languages,
+        "specialities": specialities,
+        "service_areas": service_areas,
+        "properties": properties,
+        "description": description,
+        "experience": experience,
+        "phone_number": agent_phone_number,
+        "brn": brn,
+        "agency": agency_name
+    }
 
-    print("////////////////////////////")
-
-    requests.get(f"http://127.0.0.1:8000/agent/?name={agent_name}&link={agent_bio_link}&phone_number={agent_phone_number}&details={newList}&agent_photo={agent_img}&agency_link={agency_bio_link}")
-    
+    requests.post(url="http://127.0.0.1:8000/agent/", data=json.dumps(post_data), headers=headers)
+  
 
 def get_each_prop_detail(all_link, building_name):
     for link in all_link:
@@ -327,11 +361,9 @@ def go_to_search_input(search_input):
 
 
 for i in data: 
-    
     if i[7] == 1:
         print(i[0])
         go_to_search_input(i[1])
         get_each_prop(i[1])
-
 
 

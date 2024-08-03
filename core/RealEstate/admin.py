@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import RealEstate, Agent
+from .models import Agency, Agent
 
 
-admin.site.register(RealEstate)
+admin.site.register(Agency)
 admin.site.register(Agent)
