@@ -1,12 +1,8 @@
 from rest_framework import serializers
 
+
+from area.models import City, Area, Community
 from .models import Building, Complex, BuildingHighlight, BuildingImg, BuildingDetail
-
-
-class UpdateBuildingDetailModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Building
-        fields = ["name", "source", "building_link", "status", "location","about", "publish_status"]
 
 
 class UpdateComplexPublishStatusModelSerializer(serializers.ModelSerializer):
@@ -45,15 +41,33 @@ class BuildingDetailModelSerializer(serializers.ModelSerializer):
         return detail
 
 
-# class BuildingModelSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Building
-#         fields = [
-#             "city", "area", "community", "name", "source", "building_link", 
-#             "status", "location", "about", "publish_status", "details", 
-#             "img_link", "highlight"
-#         ]
+class BuildingModelSerializer(serializers.ModelSerializer):
+    city = serializers.CharField()
+    area = serializers.CharField(required=False)
+    community = serializers.CharField(required=False)
+    
+    class Meta:
+        model = Building
+        fields = [
+            "city", "area", "community", "name", "source", "building_link", 
+            "status", "location", "about", "publish_status"
+        ]
 
-#     def create(self, validated_data):
-#         return super().create(validated_data)
+    def create(self, validated_data):
+        print(validated_data["area"])
+
+
+        # City.objects.get_or_create(name=str(validated_data["city"]).lower())
+        # try:
+        #     validated_data["city"] = City.objects.filter(name=str(validated_data["area"]).lower()).get()
+        #     Building.objects.create(**validated_data)
+        # except:
+        #     validated_data["city"] = City.objects.get_or_create(name=str(validated_data["city"]).lower())
+        #     validated_data["area"] = Area.objects.get_or_create(name=str(validated_data["area"]).lower, city=validated_data["city"])
+        #     building = Building.objects.create(**validated_data)
+        
+
+
+
+        # return super().create(validated_data)
 

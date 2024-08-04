@@ -112,6 +112,7 @@ def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
             about += pose[i] + " "
 
         if from_complex == True:
+            # requests.get() this command for create a complex and add the building in to that complex
             requests.get(f"http://127.0.0.1:8000/building/?link={link}&status={status}&name={name}&location={location}&about={about}&source=https://propsearch.ae/&area={location}&city=Dubai&complex_name={c_n}")
 
         else:
@@ -132,7 +133,7 @@ def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
                     "source": "https://propsearch.ae/"
                 }
             )
-            requests.put(url=f"http://127.0.0.1:8000/update-buildings/{building_id}/", headers=headers, data=put_data)
+            requests.put(url=f"http://127.0.0.1:8000/building/{building_id}/", headers=headers, data=put_data)
     except:
         pass
 

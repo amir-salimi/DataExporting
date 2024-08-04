@@ -5,21 +5,16 @@ from django.db.models import Q
 from django.http import HttpResponse
 from datetime import datetime
 
-from rest_framework.viewsets import generics
+from rest_framework.viewsets import generics, ModelViewSet
 
 from .models import Building, BuildingDetail, BuildingImg, BuildingHighlight, Complex
 from area.models import Area, Community, City
 
-from .serializers import UpdateBuildingDetailModelSerializer, UpdateComplexPublishStatusModelSerializer, BuildingHighlightModelSerializer, BuildingImgModelSerializer, BuildingDetailModelSerializer
+from .serializers import UpdateComplexPublishStatusModelSerializer, BuildingHighlightModelSerializer, BuildingImgModelSerializer, BuildingDetailModelSerializer, BuildingModelSerializer
 
 
 class HttpResponseOk(HttpResponse):
     status_code = 200
-
-
-class UpdateBuildingDetailsViewSet(generics.UpdateAPIView):
-    queryset = Building.objects.all()
-    serializer_class = UpdateBuildingDetailModelSerializer
 
 
 class UpdateComplexPublishStatusViewSet(generics.UpdateAPIView):
@@ -42,47 +37,56 @@ class BuildingDetailViewSet(generics.CreateAPIView):
     serializer_class = BuildingDetailModelSerializer
 
 
-class BuildingViewSet(CreateView):
-    def get(self, request):
-        name = request.GET.get("name", None)
-        link = request.GET.get("link", None)
-        status = request.GET.get("status", None)
-        area = request.GET.get("location", None)
-        about = request.GET.get("about", None)
-        city = request.GET.get("city", None)
-        complex_name = request.GET.get("complex_name", None)
-
-        if about == "None":
-            about = None
+class BuildingViewSet(ModelViewSet):
+    queryset = Building.objects.all()
+    serializer_class = BuildingModelSerializer 
 
 
+# class ComplexSetViewSet()
 
-        if link and name and area and about:
-            City.objects.get_or_create(name=str(city).lower())
-            # if location was same with city we check that in this line 
-            try: 
-                building_city = City.objects.filter(name__iexact=area).get()
-                building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, city=building_city, publish_status=1)    
 
-            except ObjectDoesNotExist:
-                building_city, building_city_created = City.objects.get_or_create(name=str(city).lower())
-                building_area, building_area_created = Area.objects.get_or_create(name=str(area).lower(), city=building_city)
-                building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, area=building_area, city=building_city, publish_status=1)    
+# class BuildingViewSet(CreateView):
+#     def get(self, request):
+#         name = request.GET.get("name", None)
+#         link = request.GET.get("link", None)
+#         status = request.GET.get("status", None)
+#         area = request.GET.get("location", None)
+#         about = request.GET.get("about", None)
+#         city = request.GET.get("city", None)
+#         complex_name = request.GET.get("complex_name", None)
 
-            if complex_name is not None:
-                complex = Complex.objects.filter(name__iexact=complex_name).first()
-                complex.buildings.add(building)
+#         if about == "None":
+#             about = None
 
-            highlights = BuildingHighlight.objects.filter(building_link=link)
-            buildingImgs = BuildingImg.objects.filter(building_link=link)
-            details = BuildingDetail.objects.filter(building_link=link)
 
-            building.highlight.add(*highlights)
-            building.img_link.add(*buildingImgs)
-            building.details.add(*details)
+
+#         if link and name and area and about:
+#             City.objects.get_or_create(name=str(city).lower())
+
+#             # if location was same with city we check that in this line 
+#             try: 
+#                 building_city = City.objects.filter(name__iexact=area).get()
+#                 building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, city=building_city, publish_status=1)    
+
+#             except ObjectDoesNotExist:
+#                 building_city, building_city_created = City.objects.get_or_create(name=str(city).lower())
+#                 building_area, building_area_created = Area.objects.get_or_create(name=str(area).lower(), city=building_city)
+#                 building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, area=building_area, city=building_city, publish_status=1)    
+
+#             if complex_name is not None:
+#                 complex = Complex.objects.filter(name__iexact=complex_name).first()
+#                 complex.buildings.add(building)
+
+#             highlights = BuildingHighlight.objects.filter(building_link=link)
+#             buildingImgs = BuildingImg.objects.filter(building_link=link)
+#             details = BuildingDetail.objects.filter(building_link=link)
+
+#             building.highlight.add(*highlights)
+#             building.img_link.add(*buildingImgs)
+#             building.details.add(*details)
             
 
-        return HttpResponseOk()
+#         return HttpResponseOk()
     
     
 class MergDuplicateBuilding(DetailView):
