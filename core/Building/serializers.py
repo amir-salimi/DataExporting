@@ -6,7 +6,7 @@ from .models import Building, Complex
 class UpdateBuildingDetailModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Building
-        fields = ["name", "source", "building_link", "status", "location","about"]
+        fields = ["name", "source", "building_link", "status", "location","about", "publish_status"]
 
 
 class UpdateComplexPublishStatusModelSerializer(serializers.ModelSerializer):

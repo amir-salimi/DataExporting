@@ -132,6 +132,7 @@ def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
                     "status": str(status),
                     "location": str(location),
                     "about": str(about),
+                    "publish_status": 1,
                     "source": "https://propsearch.ae/"
                 }
             )
@@ -174,12 +175,12 @@ cursor.execute("SELECT * FROM buildings;")
 data = cursor.fetchall()
 
 for i in data: 
-    if i[7] == 1:
+    if i[7] == 0:
         if i[10] == get_dubai_id():
             go_to_search_input(i[1])
             if driver.current_url != "https://propsearch.ae/":
                 get_detail(name=i[1], location=i[5], from_complex=None, c_n=None)
-    break
+    # break
 
 
 
