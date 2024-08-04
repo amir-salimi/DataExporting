@@ -10,7 +10,7 @@ from rest_framework.viewsets import generics
 from .models import Building, BuildingDetail, BuildingImg, BuildingHighlight, Complex
 from area.models import Area, Community, City
 
-from .serializers import UpdateBuildingDetailModelSerializer, UpdateComplexPublishStatusModelSerializer
+from .serializers import UpdateBuildingDetailModelSerializer, UpdateComplexPublishStatusModelSerializer, BuildingHighlightModelSerializer, BuildingImgModelSerializer, BuildingDetailModelSerializer
 
 
 class HttpResponseOk(HttpResponse):
@@ -27,37 +27,35 @@ class UpdateComplexPublishStatusViewSet(generics.UpdateAPIView):
     serializer_class = UpdateComplexPublishStatusModelSerializer
 
 
+class BuildingHighlightViewSet(generics.CreateAPIView):
+    queryset = BuildingHighlight.objects.all()
+    serializer_class = BuildingHighlightModelSerializer
+
+
+class BuildingImgViewSet(generics.CreateAPIView):
+    queryset = BuildingImg.objects.all()
+    serializer_class = BuildingImgModelSerializer
+
+
+class BuildingDetailViewSet(generics.CreateAPIView):
+    queryset = BuildingDetail.objects.all()
+    serializer_class = BuildingDetailModelSerializer
+
+
 class BuildingViewSet(CreateView):
     def get(self, request):
         name = request.GET.get("name", None)
         link = request.GET.get("link", None)
-        highlight = request.GET.get("highlight", None)
-        img_link = request.GET.get("img", None)
-        key = request.GET.get("key", None)
-        value = request.GET.get("value", None)
         status = request.GET.get("status", None)
         area = request.GET.get("location", None)
         about = request.GET.get("about", None)
         city = request.GET.get("city", None)
         complex_name = request.GET.get("complex_name", None)
-        publish_status = request.GET.get("publish_status", None)
-
-                
-        if link and highlight:
-            BuildingHighlight.objects.get_or_create(building_link=link, highlight=highlight)
-        
-        if link and img_link:
-            BuildingImg.objects.get_or_create(building_link=link, img_link=img_link)
-        
-        if link and key and value:
-            BuildingDetail.objects.get_or_create(building_link=link, key=key, value=value)
-
-
-
-
 
         if about == "None":
             about = None
+
+
 
         if link and name and area and about:
             City.objects.get_or_create(name=str(city).lower())

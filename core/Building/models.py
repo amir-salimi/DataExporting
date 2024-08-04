@@ -15,8 +15,8 @@ class BuildingDetail(models.Model):
 
 
 class BuildingImg(models.Model):
-    building_link = models.CharField(max_length=128)
-    img_link = models.CharField(max_length=128)
+    building_link = models.CharField(max_length=255)
+    img_link = models.CharField(max_length=320)
 
     class Meta:
         db_table = "building_images"
@@ -25,7 +25,7 @@ class BuildingImg(models.Model):
 
 class BuildingHighlight(models.Model):
     building_link = models.CharField(max_length=128)
-    highlight = models.CharField(max_length=64)
+    highlight = models.CharField(max_length=128)
 
     class Meta:
         db_table = "building_highlights"

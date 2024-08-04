@@ -37,9 +37,10 @@ def get_dubai_id():
 
 def get_complex_id_by_name(complex_name):
     cr = connection.cursor()
-    cr.execute(f"SELECT * FROM cities where complexs like '{complex_name}';")
+    cr.execute(f"SELECT * FROM complexs where name like '{complex_name}';")
     complex = cr.fetchall()
     return complex[0][0]
+
 
 def get_building_detail_from_db_by_id(building_id):
     cur = connection.cursor()
@@ -47,11 +48,13 @@ def get_building_detail_from_db_by_id(building_id):
     building = cur.fetchall()
     return building
 
+
 def get_building_detail_from_db_by_name(building_name):
     cur = connection.cursor()
     cur.execute(f"SELECT * FROM buildings where name like '{building_name}';")
     building = cur.fetchall()
     return building
+
 
 def get_area(area_id):
     cr = connection.cursor()
@@ -81,13 +84,6 @@ def go_to_search_input(search_input):
     time.sleep(3)
 
 driver = chrome_webdriver()
-
-
-
-
-
-
-
 
 
 def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
@@ -141,9 +137,6 @@ def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
         pass
 
 
-
-
-
 def get_building_detail_of_complex(complex_name):
     try:
         buildings_of_complex = driver.find_elements(By.CLASS_NAME, "shadow-ps-sm")
@@ -164,15 +157,13 @@ def get_building_detail_of_complex(complex_name):
             if "Area" in building_detail.text:
                 building_location = building_detail.text.replace("Area", "").replace("place", "").replace("\n", "")
 
-
         get_detail(name_of_building, building_location, from_complex=True, c_n=complex_name)
-
-
 
 
 cursor = connection.cursor()
 cursor.execute("SELECT * FROM buildings;")
 data = cursor.fetchall()
+
 
 for i in data: 
     if i[7] == 0:
@@ -180,9 +171,6 @@ for i in data:
             go_to_search_input(i[1])
             if driver.current_url != "https://propsearch.ae/":
                 get_detail(name=i[1], location=i[5], from_complex=None, c_n=None)
-    # break
-
-
 
 
 cursor = connection.cursor()
@@ -202,7 +190,7 @@ for complex in data:
             complex_is_ok = False
             break
     
-    if complex_is_ok == False and complex[7] != 1:
+    if complex_is_ok == False and complex[2] == 0:
         go_to_search_input(complex_name)
         get_building_detail_of_complex(complex_name)
         complex_id = get_complex_id_by_name(complex_name)
