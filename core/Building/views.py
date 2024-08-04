@@ -52,6 +52,10 @@ class BuildingViewSet(CreateView):
         if link and key and value:
             BuildingDetail.objects.get_or_create(building_link=link, key=key, value=value)
 
+
+
+
+
         if about == "None":
             about = None
 
@@ -75,15 +79,9 @@ class BuildingViewSet(CreateView):
             buildingImgs = BuildingImg.objects.filter(building_link=link)
             details = BuildingDetail.objects.filter(building_link=link)
 
-            for highlight in highlights:
-                building.highlight.add(highlight)
-                building.save()
-            for img in buildingImgs:
-                building.img_link.add(img)
-                building.save()
-            for detail in details:
-                building.details.add(detail)
-                building.save()
+            building.highlight.add(*highlights)
+            building.img_link.add(*buildingImgs)
+            building.details.add(*details)
             
 
         return HttpResponseOk()
