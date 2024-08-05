@@ -6,11 +6,17 @@ from django.http import HttpResponse
 from datetime import datetime
 
 from rest_framework.viewsets import generics, ModelViewSet
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from .models import Building, BuildingDetail, BuildingImg, BuildingHighlight, Complex
 from area.models import Area, Community, City
 
-from .serializers import UpdateComplexPublishStatusModelSerializer, BuildingHighlightModelSerializer, BuildingImgModelSerializer, BuildingDetailModelSerializer, BuildingModelSerializer
+from .serializers import (
+    UpdateComplexPublishStatusModelSerializer, BuildingHighlightModelSerializer, BuildingImgModelSerializer, 
+    BuildingDetailModelSerializer, BuildingModelSerializer, UpdateComplexBuildingModelSerializer,
+    ComplexModelSerializer
+    )
 
 
 class HttpResponseOk(HttpResponse):
@@ -42,7 +48,23 @@ class BuildingViewSet(ModelViewSet):
     serializer_class = BuildingModelSerializer 
 
 
-# class ComplexSetViewSet()
+class ComplexViewSet(APIView):
+    def put(self, request):
+        serializer = UpdateComplexBuildingModelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.update(instance=Complex.objects.filter(name=request.data["name"]).first(), validated_data=request.data)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serilizer = ComplexModelSerializer(data=request.data)
+        serilizer.is_valid(raise_exception=True)
+        serilizer.save()
+        return serilizer.data
+
+    def get(self, request):
+        complexs = Complex.objects.all()
+        serializer = ComplexModelSerializer(complexs, many=True)
+        return Response(serializer.data)
 
 
 # class BuildingViewSet(CreateView):

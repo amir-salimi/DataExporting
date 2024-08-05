@@ -11,6 +11,23 @@ class UpdateComplexPublishStatusModelSerializer(serializers.ModelSerializer):
         fields = ["publish_status"]
 
 
+class UpdateComplexBuildingModelSerializer(serializers.HyperlinkedModelSerializer):
+    buildings = serializers.CharField(required=True)
+    name = serializers.CharField(required=True)
+    class Meta:
+        model = Complex
+        fields = ["buildings", "name"]
+
+    def update(self, instance, validated_data):
+        return instance.buildings.add(Building.objects.filter(name=str(validated_data["buildings"]).lower()).first())
+
+
+class ComplexModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Complex
+        fields = ["name", "city", "area", "community", "buildings", "publish_status", "source"]
+
+
 class BuildingHighlightModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = BuildingHighlight
