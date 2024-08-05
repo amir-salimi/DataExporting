@@ -7,12 +7,11 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'building', views.BuildingViewSet)
+router.register(r'complex', views.ComplexViewSet)
 
 
 urlpatterns = [
     path('', include(router.urls)),
-
-    path('complex/', views.ComplexViewSet.as_view()),
     path('merg-duplicate-buildings/', views.MergDuplicateBuilding.as_view()),
     path('update-complex-publish-status/<int:pk>/', views.UpdateComplexPublishStatusViewSet.as_view()),
     path('building-image/', views.BuildingImgViewSet.as_view()),

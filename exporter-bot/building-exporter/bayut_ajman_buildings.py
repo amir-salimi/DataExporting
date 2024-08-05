@@ -128,7 +128,24 @@ def get_each_building_detail(link):
             pass
         
 
-        requests.get(f"http://127.0.0.1:8000/building?link={link}&status={status}&name={name}&location={location}&about={about}&city={CITY_NAME}&source=https://www.bayut.com/")
+        requests.post(
+            url="http://127.0.0.1:8000/building/", 
+            headers=headers, 
+            data=json.dumps(
+                {
+                    "city": str(CITY_NAME),
+                    "area": str(location),
+                    "name": str(name),
+                    "building_link": str(link),
+                    "status": str(status),
+                    "location": str(location),
+                    "about": str(about),
+                    "source": "https://www.bayut.com/",
+                    "publish_status": 1
+                }
+            )  
+        )
+
 
 
 def get_each_area_buildings(link, main_page):

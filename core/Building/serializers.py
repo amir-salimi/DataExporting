@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-from area.models import City, Area, Community
+from area.models import City, Area
 from .models import Building, Complex, BuildingHighlight, BuildingImg, BuildingDetail
 
 
@@ -11,20 +11,10 @@ class UpdateComplexPublishStatusModelSerializer(serializers.ModelSerializer):
         fields = ["publish_status"]
 
 
-class UpdateComplexBuildingModelSerializer(serializers.HyperlinkedModelSerializer):
-    buildings = serializers.CharField(required=True)
-    name = serializers.CharField(required=True)
-    class Meta:
-        model = Complex
-        fields = ["buildings", "name"]
-
-    def update(self, instance, validated_data):
-        return instance.buildings.add(Building.objects.filter(name=str(validated_data["buildings"]).lower()).first())
-
-
 class ComplexModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Complex
+        # fields = "__all__"
         fields = ["name", "city", "area", "community", "buildings", "publish_status", "source"]
 
 
@@ -71,20 +61,25 @@ class BuildingModelSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        print(validated_data["area"])
 
+        City.objects.get_or_create(name=str(validated_data["city"]).lower())
 
-        # City.objects.get_or_create(name=str(validated_data["city"]).lower())
-        # try:
-        #     validated_data["city"] = City.objects.filter(name=str(validated_data["area"]).lower()).get()
-        #     Building.objects.create(**validated_data)
-        # except:
-        #     validated_data["city"] = City.objects.get_or_create(name=str(validated_data["city"]).lower())
-        #     validated_data["area"] = Area.objects.get_or_create(name=str(validated_data["area"]).lower, city=validated_data["city"])
-        #     building = Building.objects.create(**validated_data)
         
+        my_city = City.objects.filter(name=str(validated_data["area"])).first()
+        if my_city:
+            validated_data["city"] = my_city
+            validated_data["area"] = None
+            building = Building.objects.create(**validated_data)
+            
+        else:
+            validated_data["city"] = City.objects.filter(name=str(validated_data["city"]).lower()).first()
+            area, area_created = Area.objects.get_or_create(name=str(validated_data["area"]).lower, city=validated_data["city"])
+            validated_data["area"] = area
+            building = Building.objects.create(**validated_data)
 
+        building.highlight.add(*BuildingHighlight.objects.filter(building_link=validated_data["building_link"]))
+        building.img_link.add(*BuildingImg.objects.filter(building_link=validated_data["building_link"]))
+        building.details.add(*BuildingDetail.objects.filter(building_link=validated_data["building_link"]))
 
-
-        # return super().create(validated_data)
+        return building
 

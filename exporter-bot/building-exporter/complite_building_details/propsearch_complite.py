@@ -112,9 +112,32 @@ def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
             about += pose[i] + " "
 
         if from_complex == True:
-            # requests.get() this command for create a complex and add the building in to that complex
-            requests.get(f"http://127.0.0.1:8000/building/?link={link}&status={status}&name={name}&location={location}&about={about}&source=https://propsearch.ae/&area={location}&city=Dubai&complex_name={c_n}")
 
+            requests.post(
+                url="http://127.0.0.1:8000/building/", 
+                headers=headers, 
+                data=json.dumps(
+                    {
+                        "city": "Dubai",
+                        "area": str(location),
+                        "name": str(name),
+                        "building_link": str(link),
+                        "status": str(status),
+                        "location": str(location),
+                        "about": str(about),
+                        "source": "https://www.bayut.com/",
+                        "publish_status": 1
+                    }
+                )  
+            )            
+
+            requests.patch(url=f"http://127.0.0.1:8000/complex/{get_complex_id_by_name(c_n)}/", headers=headers, data=json.dumps(
+                {
+                    "buildings" : [get_building_detail_from_db_by_name(name)[0][0]],
+                }
+            ))
+            
+        
         else:
             building_id = get_building_detail_from_db_by_name(name)[0][0]
             
@@ -195,7 +218,7 @@ for complex in data:
         go_to_search_input(complex_name)
         get_building_detail_of_complex(complex_name)
         complex_id = get_complex_id_by_name(complex_name)
-        requests.patch(f"http://127.0.0.1:8000/update-complex-publish-status/{complex_id}/", headers=headers, data=json.dumps({"publish_status" : 1}))
+        requests.patch(f"http://127.0.0.1:8000/complex/{complex_id}/", headers=headers, data=json.dumps({"publish_status" : 1}))
 
 
 

@@ -1,21 +1,18 @@
-from django.shortcuts import render
-from django.views.generic import CreateView, DetailView, UpdateView
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
-from django.http import HttpResponse
 from datetime import datetime
 
+from django.shortcuts import render
+from django.views.generic import DetailView
+from django.db.models import Q
+from django.http import HttpResponse
+
 from rest_framework.viewsets import generics, ModelViewSet
-from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.response import Response
 
 from .models import Building, BuildingDetail, BuildingImg, BuildingHighlight, Complex
-from area.models import Area, Community, City
-
 from .serializers import (
     UpdateComplexPublishStatusModelSerializer, BuildingHighlightModelSerializer, BuildingImgModelSerializer, 
-    BuildingDetailModelSerializer, BuildingModelSerializer, UpdateComplexBuildingModelSerializer,
-    ComplexModelSerializer
+    BuildingDetailModelSerializer, BuildingModelSerializer, ComplexModelSerializer
     )
 
 
@@ -48,67 +45,25 @@ class BuildingViewSet(ModelViewSet):
     serializer_class = BuildingModelSerializer 
 
 
-class ComplexViewSet(APIView):
-    def put(self, request):
-        serializer = UpdateComplexBuildingModelSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.update(instance=Complex.objects.filter(name=request.data["name"]).first(), validated_data=request.data)
-        return Response(serializer.data)
+class ComplexViewSet(ModelViewSet):
+    queryset = Complex.objects.all()
+    serializer_class = ComplexModelSerializer
 
-    def post(self, request):
-        serilizer = ComplexModelSerializer(data=request.data)
-        serilizer.is_valid(raise_exception=True)
-        serilizer.save()
-        return serilizer.data
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
 
-    def get(self, request):
-        complexs = Complex.objects.all()
-        serializer = ComplexModelSerializer(complexs, many=True)
-        return Response(serializer.data)
-
-
-# class BuildingViewSet(CreateView):
-#     def get(self, request):
-#         name = request.GET.get("name", None)
-#         link = request.GET.get("link", None)
-#         status = request.GET.get("status", None)
-#         area = request.GET.get("location", None)
-#         about = request.GET.get("about", None)
-#         city = request.GET.get("city", None)
-#         complex_name = request.GET.get("complex_name", None)
-
-#         if about == "None":
-#             about = None
-
-
-
-#         if link and name and area and about:
-#             City.objects.get_or_create(name=str(city).lower())
-
-#             # if location was same with city we check that in this line 
-#             try: 
-#                 building_city = City.objects.filter(name__iexact=area).get()
-#                 building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, city=building_city, publish_status=1)    
-
-#             except ObjectDoesNotExist:
-#                 building_city, building_city_created = City.objects.get_or_create(name=str(city).lower())
-#                 building_area, building_area_created = Area.objects.get_or_create(name=str(area).lower(), city=building_city)
-#                 building = Building.objects.create(name=str(name).lower(), building_link=link, status=str(status).lower(), location=str(area).lower(), about=about, area=building_area, city=building_city, publish_status=1)    
-
-#             if complex_name is not None:
-#                 complex = Complex.objects.filter(name__iexact=complex_name).first()
-#                 complex.buildings.add(building)
-
-#             highlights = BuildingHighlight.objects.filter(building_link=link)
-#             buildingImgs = BuildingImg.objects.filter(building_link=link)
-#             details = BuildingDetail.objects.filter(building_link=link)
-
-#             building.highlight.add(*highlights)
-#             building.img_link.add(*buildingImgs)
-#             building.details.add(*details)
-            
-
-#         return HttpResponseOk()
+        if request.data.get("buildings", None) != None:
+            instance.buildings.add(*Building.objects.filter(pk__in=request.data["buildings"]))
+            instance.save()
+            return Response(status=status.HTTP_200_OK)
+        
+        elif request.data.get("publish_status", None) != None:
+            instance.publish_status = int(request.data.get("publish_status"))
+            instance.save()
+            return Response(status=status.HTTP_200_OK)
+    
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     
     
 class MergDuplicateBuilding(DetailView):

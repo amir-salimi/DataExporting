@@ -1,22 +1,21 @@
-from bs4 import BeautifulSoup
-
-import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 
-import time
-import requests
-import os
+import time, requests, os, json
 
 from sentry_tool.sentry_confiuration import configuration
 
 configuration("https://48b901e268fd490dd37803bd38674eea@o4507526316883968.ingest.us.sentry.io/4507582717820928")
 
 
+headers = {
+    'Content-Type': 'application/json'
+}
+
+
 CITY_NAME = "Abu Dhabi"
 URL = "https://www.bayut.com/buildings/abu-dhabi/"
-
 
 
 def chrome_webdriver():
@@ -43,7 +42,23 @@ def get_each_building_detail(link):
             highlights = driver.find_element(By.CLASS_NAME, "markdown-elements").text
             highlights = highlights.split("\n")
             for highlight in highlights: # link and highlight
-                requests.get(f"http://127.0.0.1:8000/building?link={link}&highlight={highlight}")
+                print(json.dumps(
+                        {
+                            "building_link" : str(link),
+                            "highlight" : str(highlight)
+                        }
+                    ))
+                requests.post(
+                    url="http://127.0.0.1:8000/building-highlights/", 
+                    headers=headers, 
+                    data=json.dumps(
+                        {
+                            "building_link" : str(link),
+                            "highlight" : str(highlight)
+                        }
+                    )
+                )
+
         except:
             highlights = None
 
@@ -81,7 +96,17 @@ def get_each_building_detail(link):
             for i in img:
                 image = i.get_attribute("src")
                 if "jpg" in image and image != "https://assets.bayut.com/content/Dubai_Transactions_my_Bayut_desktop_EN_2ec3b1edfd_4a056a94b2_50773e1f3d.jpg?w=3840":
-                    requests.get(f"http://127.0.0.1:8000/building?link={link}&img={image}") # img and link
+                    requests.post(
+                        url="http://127.0.0.1:8000/building-image/", 
+                        headers=headers, 
+                        data=json.dumps(
+                            {
+                                "building_link" : str(link),
+                                "img_link" : str(image)
+                            }
+                        )
+                    )
+
         except:
             pass
 
@@ -96,12 +121,38 @@ def get_each_building_detail(link):
                 nutshell = nutshell.split(":") # nutshell -> key, value
                 key = nutshell[0]
                 value = nutshell[1]
-                requests.get(f"http://127.0.0.1:8000/building?link={link}&key={key}&value={value}")
+                requests.post(
+                    url="http://127.0.0.1:8000/building-details/", 
+                    headers=headers, 
+                    data=json.dumps(
+                        {
+                            "building_link" : str(link),
+                            "key" : str(key),
+                            "value" : str(value)
+                        }
+                    )
+                )                
+
         except:
             pass
         
-
-        requests.get(f"http://127.0.0.1:8000/building?link={link}&status={status}&name={name}&location={location}&about={about}&city={CITY_NAME}&source=https://www.bayut.com/")
+        requests.post(
+            url="http://127.0.0.1:8000/building/", 
+            headers=headers, 
+            data=json.dumps(
+                {
+                    "city": str(CITY_NAME),
+                    "area": str(location),
+                    "name": str(name),
+                    "building_link": str(link),
+                    "status": str(status),
+                    "location": str(location),
+                    "about": str(about),
+                    "source": "https://www.bayut.com/",
+                    "publish_status": 1
+                }
+            )  
+        )
 
 
 def get_each_area_buildings(link, main_page):
@@ -140,7 +191,6 @@ area_link = []
 
 for area in areas:
     area_link.append(area.get_attribute("href")) # get link of each area and append it to area_link list
-
 
 for n in area_link:
     get_each_area_buildings(n, main_page) 

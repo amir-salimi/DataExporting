@@ -5,9 +5,9 @@ from area.models import Area, City, Community
 
 
 class BuildingDetail(models.Model):
-    building_link = models.CharField(max_length=128)
-    key = models.CharField(max_length=64)
-    value = models.CharField(max_length=256)
+    building_link = models.CharField(max_length=255)
+    key = models.CharField(max_length=320)
+    value = models.CharField(max_length=320)
 
     class Meta:
         db_table = "building_details"
@@ -16,7 +16,7 @@ class BuildingDetail(models.Model):
 
 class BuildingImg(models.Model):
     building_link = models.CharField(max_length=255)
-    img_link = models.CharField(max_length=320)
+    img_link = models.TextField()
 
     class Meta:
         db_table = "building_images"
@@ -24,8 +24,8 @@ class BuildingImg(models.Model):
 
 
 class BuildingHighlight(models.Model):
-    building_link = models.CharField(max_length=128)
-    highlight = models.CharField(max_length=128)
+    building_link = models.CharField(max_length=255)
+    highlight = models.TextField()
 
     class Meta:
         db_table = "building_highlights"
