@@ -145,7 +145,7 @@ def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
                 'Content-Type': 'application/json'
             }   
 
-            put_data = json.dumps(
+            patch_data = json.dumps(
                 {
                     "name": str(name),
                     "building_link": str(link),
@@ -156,7 +156,8 @@ def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
                     "source": "https://propsearch.ae/"
                 }
             )
-            requests.put(url=f"http://127.0.0.1:8000/building/{building_id}/", headers=headers, data=put_data)
+            
+            requests.patch(url=f"http://127.0.0.1:8000/building/{building_id}/", headers=headers, data=patch_data)
     except:
         pass
 
