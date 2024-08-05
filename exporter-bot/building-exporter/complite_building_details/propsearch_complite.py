@@ -104,62 +104,51 @@ def get_detail(name, location, from_complex, c_n): # c_n -> complex_building2
     except:
         status = None
 
-    try:
-        pose = driver.find_element(By.ID, "location-guide-blueprint-legacy-guide-section").find_element(By.CLASS_NAME, "ps-indent").text
-        pose = pose.split("\n")[1:]
-        about = ""
-        for i in range(2, len(pose), 3):
-            about += pose[i] + " "
-
-        if from_complex == True:
-
-            requests.post(
-                url="http://127.0.0.1:8000/building/", 
-                headers=headers, 
-                data=json.dumps(
-                    {
-                        "city": "Dubai",
-                        "area": str(location),
-                        "name": str(name),
-                        "building_link": str(link),
-                        "status": str(status),
-                        "location": str(location),
-                        "about": str(about),
-                        "source": "https://www.bayut.com/",
-                        "publish_status": 1
-                    }
-                )  
-            )            
-
-            requests.patch(url=f"http://127.0.0.1:8000/complex/{get_complex_id_by_name(c_n)}/", headers=headers, data=json.dumps(
+    pose = driver.find_element(By.ID, "location-guide-blueprint-legacy-guide-section").find_element(By.CLASS_NAME, "ps-indent").text
+    pose = pose.split("\n")[1:]
+    about = ""
+    for i in range(2, len(pose), 3):
+        about += pose[i] + " "
+    if from_complex == True:
+        requests.post(
+            url="http://127.0.0.1:8000/building/", 
+            headers=headers, 
+            data=json.dumps(
                 {
-                    "buildings" : [get_building_detail_from_db_by_name(name)[0][0]],
-                }
-            ))
-            
-        
-        else:
-            building_id = get_building_detail_from_db_by_name(name)[0][0]
-            
-            headers = {
-                'Content-Type': 'application/json'
-            }   
-
-            patch_data = json.dumps(
-                {
+                    "city": "Dubai",
+                    "area": str(location),
                     "name": str(name),
                     "building_link": str(link),
                     "status": str(status),
                     "location": str(location),
                     "about": str(about),
-                    "publish_status": 1,
-                    "source": "https://propsearch.ae/"
+                    "source": "https://www.bayut.com/",
+                    "publish_status": 1
                 }
-            )
-            
-            requests.patch(url=f"http://127.0.0.1:8000/building/{building_id}/", headers=headers, data=patch_data)
-    except:
-        pass
+            )  
+        )            
+        requests.patch(url=f"http://127.0.0.1:8000/complex/{get_complex_id_by_name(c_n)}/", headers=headers, data=json.dumps(
+            {
+                "buildings" : [get_building_detail_from_db_by_name(name)[0][0]],
+            }
+        ))
+    else:
+        building_id = get_building_detail_from_db_by_name(name)[0][0]
+        headers = {
+            'Content-Type': 'application/json'
+        }   
+        patch_data = json.dumps(
+            {
+                "name": str(name),
+                "building_link": str(link),
+                "status": str(status),
+                "location": str(location),
+                "about": str(about),
+                "publish_status": 1,
+                "source": "https://propsearch.ae/"
+            }
+        )
+        requests.patch(url=f"http://127.0.0.1:8000/building/{building_id}/", headers=headers, data=patch_data)
 
 
 def get_building_detail_of_complex(complex_name):

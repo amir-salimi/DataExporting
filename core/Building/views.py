@@ -1,10 +1,10 @@
 from datetime import datetime
 
 from django.shortcuts import render
-from django.views.generic import DetailView
 from django.db.models import Q
 from django.http import HttpResponse
 
+from rest_framework.views import APIView
 from rest_framework.viewsets import generics, ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
@@ -61,12 +61,12 @@ class ComplexViewSet(ModelViewSet):
             instance.publish_status = int(request.data.get("publish_status"))
             instance.save()
             return Response(status=status.HTTP_200_OK)
-    
+
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     
     
-class MergDuplicateBuilding(DetailView):
+class MergDuplicateBuilding(APIView):
     def get(self, request):
         not_complite_buildings = Building.objects.filter(Q(building_link=None) or Q(building_link=" "))
         for not_complite_building in not_complite_buildings:
@@ -81,7 +81,7 @@ class MergDuplicateBuilding(DetailView):
                 not_complite_building.save()
                 complite_building.delete()
                 
-        return HttpResponseOk()
+        return Response(status=status.HTTP_200_OK)
     
 
 
